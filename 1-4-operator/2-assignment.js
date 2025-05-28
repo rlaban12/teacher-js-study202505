@@ -7,6 +7,7 @@ number /= 2; // 5
 number **= 3; // 125
 number %= 10; // 5
 
+
 console.log(`number: ${number}`);
 
 let num = 3;
