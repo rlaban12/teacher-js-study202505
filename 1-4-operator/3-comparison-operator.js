@@ -9,11 +9,11 @@ console.log(a !== b);
 console.log('===================');
 
 // == 은 직관적으로 결과 예측이 힘듬
-console.log('0' === '');
-console.log(0 === '');
-console.log('0' === 0);
-console.log(false === 'false');
-console.log(false === 0);
+console.log('0' == '');
+console.log(0 == '');
+console.log('0' == 0);
+console.log(false == 'false');
+console.log(false == 0);
 
 console.log('===================');
 
