@@ -9,10 +9,10 @@ console.log('반복문 종료!');*/
 }*/
 
 // 구구단 3단 출력
-/*let level = 3;
+let level = 3;
 for(let line = 1; line <= 9; line++) {
   console.log(`${level} x ${line} = ${level * line}`);
-}*/
+}
 
 // 변수값 swap
 let 콜라컵 = '콜라';
