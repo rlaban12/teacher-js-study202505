@@ -3,8 +3,6 @@ let foods = ['닭꼬치', '볶음밥', '족발', '파스타'];
 
 
 
-
-
 // indexOf() : 배열의 특정 요소가 몇번 인덱스에 있는지 알려줌.
 let idx = foods.indexOf('볶음밥');
 console.log(`idx: ${idx}`);
@@ -31,4 +29,24 @@ console.log(`origin: `, numbers);
 
 console.log(numbers.slice(3)); // 3번부터 끝까지
 console.log(numbers.slice()); // 전체복사
+
+
+console.log('===================');
+
+// splice() : 배열의 요소를 추가하거나 삭제 (중간에서 작업 가능)
+// 배열의 원본을 건드림.
+console.log(foods);
+
+foods.splice(2,1);
+console.log(foods);
+
+foods.splice(0, 1, '마라탕');
+console.log(foods);
+
+foods.splice(2, 0, '짜장면');
+console.log(foods);
+
+
+
+
 
