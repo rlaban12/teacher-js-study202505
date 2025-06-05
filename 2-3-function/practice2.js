@@ -1,16 +1,14 @@
 /**
- * 키와 몸무게를 전달받아 BMI지수를 계산해서 반환하는 함수
- * @param cm - 신장
- * @param kg - 몸무게
- * @return - 계산된 실수형 BMI지수
+ * cm단위를 m로 변환하는 함수
  */
-function calcBMI(cm, kg) {
-  let m = cm / 100;
-  // bmi 계산
-  let bmi = kg / (m * m);
+function convertCentiToMeter(cm) {
+  return cm / 100;
+}
 
-  // bmi가지고 저체중 정상체중 판별
-  // 판별 분기
+/**
+ * bmi값을 전달받아 현재 체중상태를 출력하는 함수
+ */
+function judgeBMI(bmi) {
   if (bmi > 25) {
     console.log('당신은 과체중입니다.');
   } else if (bmi < 18.5) {
@@ -18,6 +16,22 @@ function calcBMI(cm, kg) {
   } else {
     console.log('당신은 정상체중입니다.');
   }
+}
+
+/**
+ * 키와 몸무게를 전달받아 BMI지수를 계산해서 반환하는 함수
+ * @param cm - 신장
+ * @param kg - 몸무게
+ * @return - 계산된 실수형 BMI지수
+ */
+function calcBMI(cm, kg) {
+  let m = convertCentiToMeter(cm);
+  // bmi 계산
+  let bmi = kg / (m * m);
+
+  // bmi가지고 저체중 정상체중 판별
+  // 판별 분기
+  judgeBMI(bmi);
 
   // bmi 반환
   return bmi;

@@ -57,6 +57,7 @@ function operate(n1, n2) {
   };
 }
 
+
 let results = operate(30, 3);
 console.log(`덧셈: ${results.add}`);
 console.log(`뺄셈: ${results.sub}`);
