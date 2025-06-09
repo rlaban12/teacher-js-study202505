@@ -70,7 +70,6 @@ function filterUser(callback) {
   }
   return filteredArray;
 }
-
 function filter(array, callback) {
   const filteredArray = [];
   for (const element of array) {
