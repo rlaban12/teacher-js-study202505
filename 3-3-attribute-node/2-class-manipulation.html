@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        .box {
+            width: 100px;
+            height: 100px;
+            background: orange;
+            font-size: 20px;
+            color: red;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .green {
+            color: greenyellow;
+            background: green;
+        }
+
+        .blue {
+            color: aqua;
+            background: blue;
+        }
+
+        .circle {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="box green">Hello</div>
+
+    <script>
+        const $box = document.querySelector('.box');
+
+        // console.log($box.getAttribute('class'));
+        // $box.setAttribute('class', 'box green circle');
+
+        // 클래스 추가하기
+        $box.classList.add('circle');
+        $box.classList.add('aaa', 'bbb', 'ccc');
+
+        // 클래스 제거하기
+        $box.classList.remove('green');
+        $box.classList.remove('aaa', 'ccc');
+
+        // 클래스 교체하기 (old, new)
+        $box.classList.replace('circle', 'blue');
+
+        // 클래스 존재 유무 확인
+        console.log($box.classList.contains('blue'));
+        console.log($box.classList.contains('circle'));
+
+        $box.addEventListener('click', e => {
+
+          // 있으면 제거하고 없으면 추가한다.
+          $box.classList.toggle('circle');
+
+          /*// 현재 원모양인지 확인
+          if ($box.classList.contains('circle')) {
+            // 클래스를 제거해서 사각형으로 변환
+            $box.classList.remove('circle');
+          } else {
+            $box.classList.add('circle');
+          }*/
+        });
+    </script>
+</body>
+</html>
