@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        #peach {
+            color: hotpink;
+        }
+    </style>
+</head>
+<body>
+  <ul>
+    <li id="apple">사과</li>
+    <li id="banana">바나나</li>
+    <li id="grape">포도</li>
+    <li id="peach" style="font-size: 1.5em;">복숭아</li>
+  </ul>
+
+  <script>
+    const $banana = document.getElementById('banana');
+    console.log(typeof $banana);
+    console.log($banana.tagName);
+    console.log($banana.id);
+    console.log($banana.textContent);
+
+    $banana.textContent = '뽀너너';
+    $banana.apple = '사과';
+
+    delete $banana.apple;
+
+    console.log('===================');
+    const $peach = document.getElementById('peach');
+
+    $peach.style.fontStyle = 'italic';
+
+  </script>
+</body>
+</html>

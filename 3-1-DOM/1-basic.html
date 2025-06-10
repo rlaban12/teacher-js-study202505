@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        .my-body {
+            background: lightgray;
+        }
+    </style>
+</head>
+<body>
+    <ul id="fruits">
+        <li class="f-item">사과</li>
+        <li class="f-item">바나나</li>
+        <li class="f-item">포도</li>
+        <li class="f-item">복숭아</li>
+    </ul>
+
+    <script>
+      // console.log(document.body);
+
+      document.body.classList.add('my-body');
+
+      console.log(document.body.children[0].attributes[0].value);
+
+      document.body.children[0].id = 'citrus';
+      document.body.children[0].children[1].textContent = '뻐네이너';
+      document.body.children[0].children[2].style.background = 'violet';
+      document.body.style.background = 'aqua';
+
+    </script>
+</body>
+</html>

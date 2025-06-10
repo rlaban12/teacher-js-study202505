@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+  <ul>
+    <li class="fruit apple">사과</li>
+    <li class="fruit banana">바나나</li>
+    <li id="gp" class="fruit grape">포도</li>
+    <li class="fruit peach">복숭아</li>
+  </ul>
+
+  <script>
+    // 포도 li를 가져오고 싶음.
+    // const $grape = document.querySelector('.grape');
+    // const $grape = document.getElementById('gp');
+    // const $grape = document.querySelector('#gp');
+    // const $grape = document.querySelector('ul li:nth-child(3)');
+    const $grape = document.querySelector('.banana + li');
+
+    $grape.style.color = 'violet';
+    $grape.style.fontSize = '1.5rem';
+
+    // querySelector는 해당 선택자에서 일치하는 가장 처음 발견된
+    // 태그를 가져옴
+    console.log('===================');
+
+    // 유사 배열 (array like)
+    const arraylike = {
+      0: '안녕',
+      1: '메롱',
+      length: 2
+    };
+    console.log(arraylike[0]);
+
+    // querySelectorAll은 유사배열형태로 데이터를 모아오므로
+    // 기능 확장성이 낮음.
+    // 따라서 찐 배열로 바꿔서 쓰세요.
+    const elements = document.querySelectorAll('.fruit');
+    console.log(elements);
+
+    console.log('===================');
+    // 유사배열을 진짜배열로 변환
+    // const realArray = Array.from(elements);
+    const realArray = [...elements];
+    console.log(realArray);
+
+    console.log('===================');
+    const $fruits = [...document.querySelectorAll('.fruit')];
+    console.log($fruits);
+
+    $fruits.forEach($li => {
+      $li.style.fontStyle = 'italic';
+      $li.style.border = '2px solid orange';
+    });
+
+  </script>
+</body>
+</html>
