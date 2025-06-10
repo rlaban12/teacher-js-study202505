@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+    <ul id="hobbies">
+        <li>수영</li>
+    </ul>
+
+    <script>
+        // 태그 동적 추가
+        const $hobbies = document.getElementById('hobbies');
+        // 1. 태그를 생성 - <li></li>
+        const $newLi = document.createElement('li');
+        // 2. 필요한 컨텐츠 삽입 - <li>낮잠</li>
+        $newLi.textContent = '낮잠';
+
+        // 3. 적당한 위치에 붙이기
+        $hobbies.append($newLi);
+
+        console.log($newLi);
+
+        const $newLi2 = document.createElement('li');
+        $newLi2.textContent = '요가';
+
+        $hobbies.prepend($newLi2);
+
+        // append, prepend는 부모에게 명령해야 함.
+        // before, after는 자식에게 명령해야 함.
+        const $newLi3 = document.createElement('li');
+        $newLi3.textContent = '태권도';
+        $newLi.before($newLi3);
+
+        // 새로운 태그를 생성해서 텍스트를 넣고 부모에게 붙이는 함수
+        function appendNewTag(options={}) {
+          const $newTag = document.createElement(options.tagName || 'div');
+          $newTag.textContent = options.text || '';
+          options.parent.append($newTag);
+        }
+
+        const myHobbies = ['요리', '친구놀리기', '멍때리기', '독서'];
+
+        myHobbies.forEach(hobby => {
+          appendNewTag({
+            parent: $hobbies,
+            tagName: 'li',
+            text: hobby
+          });
+        });
+
+
+
+    </script>
+</body>
+</html>

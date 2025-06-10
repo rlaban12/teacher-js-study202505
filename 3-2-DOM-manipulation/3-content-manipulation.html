@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+  <style>
+    .highlight {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="greet">
+    Hello <span class="highlight">World!</span>
+  </div>
+
+  <p>
+    세
+    로
+    드
+    립
+  </p>
+
+  <ul id="food-list">
+    <li class="food">고구마</li>
+    <li class="food">감자</li>
+    <li class="food">옥수수</li>
+  </ul>
+
+  <script>
+    const $greet = document.getElementById('greet');
+    console.log($greet.firstElementChild.textContent);
+    console.log($greet.textContent);
+    console.log($greet.textContent.trim());
+    console.log($greet.innerHTML);
+
+    // 순수하게 텍스트를 조작
+    // 안에있는 인라인태그가 날아갈 수 있음 주의!
+    $greet.textContent = '안녕~~하세요';
+
+    // 태그와 함께 텍스트를 조작
+    $greet.innerHTML = '안녕~~<span class="highlight">하세요</span>';
+
+    const $foodList = document.getElementById('food-list');
+
+    // 자식 태그 일괄 수정
+    $foodList.innerHTML = '<li>메롱</li>';
+
+    // 자식 태그를 추가
+    $foodList.innerHTML += '<li>즐~~</li>';
+
+    for (let i = 1; i <= 5; i++) {
+      $foodList.innerHTML += `<li>잘가${i}</li>`;
+    }
+    ['탕수육', '짜장면', '치킨'].forEach(food => {
+      $foodList.innerHTML += `<li>${food}</li>`;
+    });
+
+    // 자식 태그 전체 삭제
+    $foodList.innerHTML = '';
+  </script>
+
+</body>
+</html>

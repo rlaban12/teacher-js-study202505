@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+
+    <ul id="fruits">
+        <li class="fr">사과</li>
+        <li class="fr">바나나</li>
+        <li class="fr">포도</li>
+    </ul>
+
+    <script>
+      const $ul = document.getElementById('fruits');
+      const $listItems = [...$ul.children];
+      console.log($listItems);
+
+      const $firstLi = $ul.firstElementChild;
+      const $lastLi = $ul.lastElementChild;
+
+      $firstLi.style.fontSize = '2rem';
+      $lastLi.style.color = 'violet';
+    </script>
+</body>
+</html>

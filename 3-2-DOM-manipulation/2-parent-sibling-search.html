@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+    <div class="wrap">
+        <ul id="fruits">
+            <li class="fr apple">사과</li>
+            <li class="fr banana">바나나</li>
+            <li class="fr grape">포도</li>
+        </ul>
+    </div>
+
+    <div id="wrapper">
+        <section class="contents">
+            <ul class="list">
+                <li class="item">
+                    <a href="#" class="link">10</a>
+                </li>
+                <li class="item">
+                    <a href="#" class="link active">20</a>
+                </li>
+                <li class="item">
+                    <a href="#" class="link">30</a>
+                </li>
+            </ul>
+            <ul class="list">
+                <li class="item">
+                    <a href="#" class="link">40</a>
+                </li>
+                <li class="item">
+                    <a href="#" class="link">50</a>
+                </li>
+                <li class="item">
+                    <a href="#" class="link">60</a>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        const $ul = document.getElementById('fruits');
+        $ul.parentElement.style.border = '2px dashed blue';
+
+        const [$apple, $banana, $grape] = [...$ul.children];
+
+        console.log($banana.nextElementSibling === $grape);
+        console.log($ul.children[0] === $banana.previousElementSibling);
+        console.log($ul.lastElementChild.previousElementSibling === $banana);
+
+        console.log('===================');
+
+        // class가 active인 태그를 가져와보자
+        const $active = document.querySelector('.active');
+        // console.log($active);
+
+        // $active를 기준으로 상대적으로 텍스트가 60인 태그를 가져와줘
+        const $target = $active
+          .parentElement
+          .parentElement
+          .nextElementSibling
+          .lastElementChild
+          .firstElementChild;
+
+        console.log($target.textContent);
+
+        console.log('===================');
+
+        // 특정 태그 기준으로 조상태그를 한번에 찾는 법
+        // closest(css selector)
+        const $section = $active.closest('.contents');
+
+        // 특정 태그 기준으로 깊게 위치한 자식을 한번에 찾는법
+        // querySelector()
+        const $link60 = $section.querySelector('ul:last-child li:last-child a');
+        console.log($link60);
+
+        console.log('===================');
+        const $target60 = $active
+          .closest('.contents')
+          .querySelector('ul:last-child li:last-child a');
+
+        console.log($target60);
+    </script>
+</body>
+</html>
