@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+
+<!--  div*3>button#b${클릭$}-->
+  <div>
+    <button id="b1">클릭1</button>
+  </div>
+  <div>
+    <button id="b2">클릭2</button>
+  </div>
+  <div>
+    <button id="b3">클릭3</button>
+  </div>
+
+  <script>
+    const [$b1, $b2, $b3] = [...document.querySelectorAll('button')];
+
+    // 이벤트 핸들러
+    function sayHelloHandler() {
+      alert('hello!');
+    }
+    // 이벤트 핸들러 바인딩
+    $b1.onclick = sayHelloHandler;
+
+    $b2.ondblclick = function () {
+      $b2.style.width = '150px';
+    };
+
+    $b3.onmouseover = () => {
+      $b3.style.background = 'red';
+    };
+    $b3.onmouseout = () => {
+      $b3.style.background = 'yellow';
+    };
+
+    // 프로퍼티 바인딩의 단점:
+    // 같은 종류 타입의 이벤트에 다른 핸들러를 바인딩할 수 없음
+    $b3.onmouseover = () => {
+      $b3.style.width = '100px';
+    };
+
+    $b3.onmouseout = null;
+
+
+    // function foo() {
+    //   return 100;
+    // }
+
+    // const dog = {};
+    // dog.name = '뽀삐';
+    // dog.age = 10;
+    // dog.bark = foo;
+    //
+    // const r = dog.bark();
+    //
+    // console.log(dog);
+
+
+  </script>
+</body>
+</html>

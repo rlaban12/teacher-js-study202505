@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+  <button id="btn">버튼입니다.</button>
+
+  <script>
+    const $btn = document.getElementById('btn');
+
+    const helloHandler = () => {
+      alert('앙영하긔~~');
+    };
+
+    $btn.addEventListener('click', helloHandler);
+    $btn.addEventListener('click', () => {
+      $btn.style.background = 'aqua';
+    });
+
+    // 이벤트 제거 (단, 핸들러의 이름이 기명이어야 함)
+    $btn.removeEventListener('click', helloHandler);
+
+  </script>
+</body>
+</html>
