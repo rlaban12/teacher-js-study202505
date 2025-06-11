@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+  <style>
+    .link {
+      color: #00f;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="https://github.com" class="github-link">깃허브로 이동</a>
+
+  <section class="link">
+    네이버로 이동
+  </section>
+
+  <script>
+    const $link = document.querySelector('.github-link');
+
+    $link.addEventListener('click', e => {
+      const flag = confirm('정말로 이동합니까?');
+      if (!flag) {
+        e.preventDefault();  // 태그 기본 기능 제거
+      }
+    });
+
+    document.querySelector('.link').addEventListener('click', e => {
+      window.location.href = 'https://www.naver.com';
+    });
+
+  </script>
+</body>
+</html>
