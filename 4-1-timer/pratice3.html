@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스탑워치</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .stopwatch {
+      font-size: 2rem;
+      margin: 20px;
+    }
+    .buttons, .log-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .log-container {
+      flex-direction: column;
+      align-items: center;
+    }
+    .log-entry {
+      font-size: 1rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>스탑워치</h1>
+  <div class="stopwatch" id="display">00:00:00</div>
+  <div class="buttons">
+    <button id="start">시작</button>
+    <button id="pause" disabled>일시정지</button>
+    <button id="reset">초기화</button>
+  </div>
+  <div class="log-container" id="logContainer">
+    <h2>일시정지 로그</h2>
+  </div>
+
+</body>
+</html>

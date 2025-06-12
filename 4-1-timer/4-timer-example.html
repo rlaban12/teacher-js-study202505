@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        /* 알림 메시지 스타일 */
+        .alert {
+            display: none; /* 기본적으로 숨김 */
+            padding: 15px;
+            background-color: #4CAF50; /* 초록색 배경 */
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        /* 닫기 버튼 스타일 */
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 알림 메시지 -->
+    <div class="alert" id="alertBox">
+        <button class="close-btn" id="closeBtn">×</button>
+        성공적으로 작업이 완료되었습니다!
+    </div>
+
+    <!-- 알림 버튼 -->
+    <button id="showAlertBtn">알림 메시지 표시</button>
+
+    <script>
+        const $showAlertBtn = document.getElementById('showAlertBtn');
+        const $alertBox = document.getElementById('alertBox');
+        const $closeBtn = document.getElementById('closeBtn');
+
+        let alertTimerId = null;
+
+        $showAlertBtn.addEventListener('click', e => {
+          $alertBox.classList.add('show');
+          alertTimerId = setTimeout(() => {
+            $alertBox.classList.remove('show');
+          }, 3000);
+        });
+
+        $closeBtn.addEventListener('click', e => {
+          // 이미 실행중인 기존 타이머를 중지시켜야 함 - 중복 실행 방지
+          clearTimeout(alertTimerId);
+
+          $alertBox.classList.remove('show');
+        });
+    </script>
+</body>
+</html>

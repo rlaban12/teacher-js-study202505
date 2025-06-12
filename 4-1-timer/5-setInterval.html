@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+  <p class="msg"></p>
+
+  <script>
+      const $msg = document.querySelector('.msg');
+
+      // 정해진 시간마다 코드를 반복
+      setInterval(() => {
+        const now = new Date(); // 현재 시간 읽기
+        $msg.textContent = now.toLocaleTimeString();
+      }, 1000);
+
+      // setInterval(() => {
+      //   $msg.textContent += '안뇽~';
+      // }, 300);
+  </script>
+</body>
+</html>

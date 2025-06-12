@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+    <button id="start">시작</button>
+    <button id="stop">정지</button>
+    <p>
+        시간: <span id="timer">0</span>초
+    </p>
+
+    <script>
+      const $startBtn = document.getElementById('start');
+      const $stopBtn = document.getElementById('stop');
+
+      let intervalId = null;
+
+      // 시작버튼 클릭시 스톱워치 실행
+      $startBtn.addEventListener('click', e => {
+
+        // 이미 인터벌이 실행중이면 종료
+        if (intervalId) return;
+
+        // 시작버튼을 누른 시간 읽어오기
+        const startTime = new Date();
+
+        // 현재 시간 읽어오기
+        intervalId = setInterval(() => {
+          const now = new Date();
+          // 경과시간 구하기
+          const elapsedTime = now - startTime; // 양 시간의 차이를 밀리초로 알려줌
+
+          // 타이머에 경과시간 렌더링
+          const $timerSpan = document.getElementById('timer');
+          $timerSpan.textContent = elapsedTime / 1000; // 초로 변환
+        }, 1);
+
+      });
+
+      // 정지 이벤트
+      $stopBtn.addEventListener('click', e => {
+        // 인터벌을 취소
+        clearInterval(intervalId);
+        // 다음 재시작을 위해 id를 null로 초기화
+        intervalId = null;
+      });
+    </script>
+</body>
+</html>
