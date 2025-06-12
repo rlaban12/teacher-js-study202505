@@ -26,6 +26,9 @@
       font-size: 16px;
       cursor: pointer;
     }
+    button[disabled] {
+      cursor: not-allowed;
+    }
     .log-container {
       flex-direction: column;
       align-items: center;
@@ -48,6 +51,95 @@
   <div class="log-container" id="logContainer">
     <h2>일시정지 로그</h2>
   </div>
+
+  <script>
+    // ====   전역 변수 선언  ==== //
+    // 경과누적 시간 저장하기
+    let elapsedTime = 0;
+    // 인터벌 아이디
+    let timerIntervalId = null;
+    // 스톱워치가 실행중인지의 여부
+    let isRunning = false;
+
+    // ====   요소 노드 가져오기 ==== //
+    const [$startBtn, $pauseBtn, $resetBtn]
+            = [...document.querySelector('.buttons').children];
+
+    const $display = document.getElementById('display');
+
+
+    // === 이벤트 핸들러 정의 === //
+    // 경과 시간을 포맷팅 (분:초:밀리초)하는 함수
+    function formatElapsedTime() {
+      // 경과시간을 00분 00초 00밀리초 형태로 변환
+      const minutes = String(Math.floor(elapsedTime / 60000)).padStart(2, "0");
+      const seconds = String(Math.floor((elapsedTime % 60000) / 1000)).padStart(2, "0");
+      const millisecond = String(Math.floor((elapsedTime % 1000) / 10)).padStart(2, '0');
+
+      // 지속적인 경과시간을 화면에 렌더링
+      $display.textContent = `${minutes}:${seconds}:${millisecond}`;
+    }
+
+    // 버튼 비활성화 상태 처리
+    function changeState(isStart) {
+      $startBtn.disabled = isStart;
+      $pauseBtn.disabled = !isStart;
+      isRunning = isStart;
+    }
+
+    function startStopwatch(e) {
+
+      // 버튼 활성상태, 실행 상태 처리
+      changeState(true);
+
+      // 머해? 스톱워치 돌려 -> 실시간으로 시간이 찍혀야겠네?
+      // 10밀리초씩 인터벌로 반복
+      timerIntervalId = setInterval(() => {
+        // 시간을 계속 기록
+        elapsedTime += 10;
+        // 화면에 렌더링
+        formatElapsedTime();
+      }, 10);
+    }
+
+    // 일시정지 버튼 이벤트 핸들러
+    function pauseStopwatch(e) {
+
+      // 현재 스톱워치가 일시정지 중인지 돌고있는 중인지를 알 수 있는 방법이 필요
+      if (isRunning) { // 돌고있는 중
+
+        // 뭐하지? 스톱워치를 중단 (인터벌 클리어)
+        clearInterval(timerIntervalId);
+        timerIntervalId = null;
+        isRunning = false; // 실행 상태 변경
+
+        // 텍스트 변경
+        $pauseBtn.textContent = '재개';
+      } else { // 멈춰있는 중
+        startStopwatch();
+        // 텍스트 변경
+        $pauseBtn.textContent = '일시정지';
+      }
+    }
+
+    function resetStopwatch(e) {
+      elapsedTime = 0;
+      clearInterval(timerIntervalId);
+      timerIntervalId = null;
+      $display.textContent = '00:00:00';
+      $pauseBtn.textContent = '일시정지';
+
+      changeState(false);
+    }
+
+    // === 이벤트 핸들러 바인딩 === //
+    $startBtn.addEventListener('click', startStopwatch);
+
+    $pauseBtn.addEventListener('click', pauseStopwatch);
+
+    $resetBtn.addEventListener('click', resetStopwatch);
+
+  </script>
 
 </body>
 </html>

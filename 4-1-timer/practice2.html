@@ -14,6 +14,20 @@
 
     // 3초마다 순환하면서 바디의 백그라운드를 변경시킴
     // 단, 15초 후에는 더이상 배경 변경을 멈춰야함
+    let colorIndex = 0;
+
+    const interval = setInterval(() => {
+      console.log(`인터벌 시작: ${colorIndex}`);
+      document.body.style.background = colors[colorIndex];
+      // colorIndex 로테이션
+      colorIndex = (colorIndex + 1) % colors.length;
+    }, 3000);
+
+    setTimeout(() => {
+      console.log('인터벌 중지!');
+      clearInterval(interval);
+    }, 15000);
+
   </script>
 </body>
 </html>
