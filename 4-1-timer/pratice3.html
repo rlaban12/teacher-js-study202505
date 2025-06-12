@@ -50,6 +50,7 @@
   </div>
   <div class="log-container" id="logContainer">
     <h2>일시정지 로그</h2>
+    <div class="log-entry"></div>
   </div>
 
   <script>
@@ -87,6 +88,14 @@
       isRunning = isStart;
     }
 
+    // 로그를 렌더링하는 함수
+    function logStopwatchTime() {
+      // 현재 멈춘 시간을 읽어서 로그엔트리 박스에 추가하기
+      const $logDiv = document.createElement('div');
+      $logDiv.textContent = $display.textContent;
+      document.querySelector('.log-entry').append($logDiv);
+    }
+
     function startStopwatch(e) {
 
       // 버튼 활성상태, 실행 상태 처리
@@ -115,6 +124,10 @@
 
         // 텍스트 변경
         $pauseBtn.textContent = '재개';
+
+        // 로그 기록
+        logStopwatchTime();
+
       } else { // 멈춰있는 중
         startStopwatch();
         // 텍스트 변경
