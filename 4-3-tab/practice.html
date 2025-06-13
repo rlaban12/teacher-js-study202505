@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Title</title>
+  <style>
+    body {
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .step-container {
+      width: 700px;
+      padding: 30px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    .step-indicator-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-bottom: 40px;
+    }
+    /* 스텝 사이의 회색 연결선 */
+    .step-indicator-container::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background-color: #e0e0e0;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .step-indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      color: #757575;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      z-index: 2;
+      border: 4px solid #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .step-indicator.active {
+      background-color: #3498db;
+      color: white;
+      border-color: #3498db;
+      transform: scale(1.1);
+    }
+    .step-content {
+      display: none; /* 기본적으로 모든 콘텐츠는 숨김 */
+      padding: 20px;
+      border: 1px dashed #ddd;
+      border-radius: 8px;
+    }
+    .step-content.active {
+      display: block; /* active 클래스가 붙은 콘텐츠만 보여줌 */
+    }
+    h3 {
+      color: #333;
+    }
+    p {
+      color: #666;
+      line-height: 1.6;
+    }
+    .step-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+    .nav-button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      background-color: #3498db;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+    .nav-button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="step-container">
+    <div class="step-indicator-container">
+      <div class="step-indicator active" data-step="1">1</div>
+      <div class="step-indicator" data-step="2">2</div>
+      <div class="step-indicator" data-step="3">3</div>
+      <div class="step-indicator" data-step="4">4</div>
+    </div>
+
+    <div class="step-content-container">
+      <div class="step-content active" id="step-1">
+        <h3>1단계: 약관 동의</h3>
+        <p>서비스 이용 약관 및 개인정보 처리 방침에 동의해주세요. 모든 내용은 꼼꼼히 읽어보시는 것이 좋습니다.</p>
+      </div>
+      <div class="step-content" id="step-2">
+        <h3>2단계: 본인 인증</h3>
+        <p>사용자님의 정보를 안전하게 보호하기 위해 본인 인증을 진행합니다. 휴대폰이나 아이핀으로 인증할 수 있습니다.</p>
+      </div>
+      <div class="step-content" id="step-3">
+        <h3>3단계: 정보 입력</h3>
+        <p>회원가입에 필요한 기본 정보를 입력해주세요. 아이디, 비밀번호, 이메일 주소는 정확하게 입력해야 합니다.</p>
+      </div>
+      <div class="step-content" id="step-4">
+        <h3>4단계: 가입 완료</h3>
+        <p>축하합니다! 회원가입이 성공적으로 완료되었습니다. 이제 모든 서비스를 자유롭게 이용하실 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="step-navigation">
+      <button class="nav-button" id="prev-btn" disabled>이전</button>
+      <button class="nav-button" id="next-btn">다음</button>
+    </div>
+  </div>
+
+  <script>
+    // ====== 필요한 요소 노드들 가져오기 ===== //
+    // 이전, 다음 버튼 가져오기
+    const [$prevBtn, $nextBtn] = [...document.querySelector('.step-navigation').children];
+    const $contents = [...document.querySelectorAll('.step-content')];
+    const $indicators = [...document.querySelectorAll('.step-indicator')];
+
+    // ====== 필요한 변수 선언 ======= //
+    // 지금 현재 몇단계를 보고있는지를 전역적으로 기억할 수 있게
+    let currentStep = 1;
+    // 전체 단계의 개수
+    const totalSteps = $indicators.length;
+
+    // ==== 공통 처리 함수 정의 ==== //
+    function updateUI() {
+      // 1. 인디케이터에 현재스텝에 맞는 태그를 찾아 active부여
+      $indicators.forEach(($indicator, index) => {
+        if (currentStep === index + 1) {
+          $indicator.classList.add('active');
+        } else {
+          $indicator.classList.remove('active');
+        }
+      });
+
+      // 2. 콘텐츠 박스 업데이트
+      $contents.forEach(($content) => {
+        // 현재 활성화해야하는 컨텐츠박스의 id의 끝값과 currentStep의 값이 일치
+        if ($content.getAttribute('id') === `step-${currentStep}`) {
+          $content.classList.add('active');
+        } else {
+          $content.classList.remove('active');
+        }
+      });
+
+      // 3. 이전/ 다음버튼 활성화 처리
+      // step 1에서만 이전버튼 비활성화 나머지는 활성화
+      // 마지막스텝에서만 다음버튼 비활성화 나머지는 활성화
+      $prevBtn.disabled = currentStep === 1;
+      $nextBtn.disabled = currentStep === totalSteps;
+    }
+
+    // ====  이벤트 바인딩 ==== //
+    // 다음버튼 클릭시
+    $nextBtn.addEventListener('click', e => {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        // UI 업데이트
+        updateUI();
+      }
+    });
+
+    // 이전버튼 클릭시
+    $prevBtn.addEventListener('click', e => {
+      if (currentStep > 1) {
+        currentStep--;
+        // UI 업데이트
+        updateUI();
+      }
+    });
+
+    // 인디케이터 직접 클릭 시
+    $indicators.forEach($indicator => {
+      $indicator.addEventListener('click', e => {
+        currentStep = +e.target.dataset.step;
+        updateUI();
+      });
+    });
+
+  </script>
+
+</body>
+</html>
