@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Title</title>
   <style>
+    body {
+      height: 3000px;
+    }
     body.modal-open {
       overflow: hidden; /* 모달이 열렸을 때 배경 스크롤 방지 */
     }
@@ -69,7 +72,7 @@
       <h2>1차 모달</h2>
       <p>첫 번째 모달입니다. 여기서 다른 모달을 열 수 있습니다.</p>
       <button id="open-nested-modal-btn" class="btn">중첩 모달 열기</button>
-      <button class="close-btn" data-modal-id="modal-overlay-1">닫기</button>
+      <button class="btn close-btn" data-modal-id="modal-overlay-1">닫기</button>
     </div>
   </div>
 
@@ -77,10 +80,84 @@
     <div class="modal-content">
       <h2>2차 모달</h2>
       <p>이 모달은 첫 번째 모달 위에서 열렸습니다.</p>
-      <button class="close-btn" data-modal-id="modal-overlay-2">닫기</button>
+      <button class="btn close-btn" data-modal-id="modal-overlay-2">닫기</button>
     </div>
   </div>
 
+  <script>
+    // === 요소 노드 가져오기 ==== //
+    const $mainModalBtn = document.getElementById('open-main-modal-btn');
+    const $mainOverlay = document.getElementById('modal-overlay-1');
 
+    const $subModalBtn = document.getElementById('open-nested-modal-btn');
+    const $subOverlay = document.getElementById('modal-overlay-2');
+
+    // 모든 닫기 버튼 가져오기
+    const $closeButtons = [...document.querySelectorAll('.close-btn')];
+
+    // ===== 일반 함수 정의 ===== //
+    // 모달을 열어주는 함수
+    function openModal($modalOverlay) {
+      $modalOverlay.style.display = 'flex';
+      document.body.classList.add('modal-open');
+    }
+
+    // 모달을 닫는 함수
+    function closeModal($modalOverlay) {
+      $modalOverlay.style.display = 'none';
+
+      console.log($modalOverlay);
+      // 1차 모달을 닫을때만 실행
+      if ($modalOverlay === $mainOverlay) {
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    // ===== 이벤트 바인딩 ===== //
+    // 메인 모달 열기
+    $mainModalBtn.addEventListener('click', e => {
+      openModal($mainOverlay);
+    });
+
+    // 중첩 모달 열기
+    $subModalBtn.addEventListener('click', e => {
+      openModal($subOverlay);
+    });
+
+    // 모든 모달 닫기
+    $closeButtons.forEach($closeBtn => {
+      $closeBtn.addEventListener('click', e => {
+        const $targetModal = document.getElementById($closeBtn.dataset.modalId);
+        closeModal($targetModal);
+      });
+    });
+
+    // 검은색 오버레이 클릭시 모달닫아주기
+    $mainOverlay.addEventListener('click', e => {
+      if (e.target === $mainOverlay) {
+        closeModal($mainOverlay);
+      }
+    });
+    $subOverlay.addEventListener('click', e => {
+      if (e.target === $subOverlay) {
+        closeModal($subOverlay);
+      }
+    });
+
+    // ESC키로 닫기
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        // 2차 모달이 열려있다면 2차모달 먼저닫기
+        if ($subOverlay.style.display === 'flex') {
+          closeModal($subOverlay);
+        } else if ($mainOverlay.style.display === 'flex') {
+          closeModal($mainOverlay)
+        }
+      }
+    });
+
+
+
+  </script>
 </body>
 </html>

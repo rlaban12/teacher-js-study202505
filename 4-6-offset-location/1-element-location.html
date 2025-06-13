@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        body {
+            height: 2000px;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #000;
+            box-sizing: border-box;
+
+            background-color: #007bff;
+            position: absolute;
+            top: 150px;
+            left: 150px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="box" id="box">박스</div>
+    <button id="move">이동</button>
+
+    <script>
+
+        const $box = document.getElementById('box');
+        const $moveBtn = document.getElementById('move');
+
+        $moveBtn.addEventListener('click', e => {
+          // 현재 박스의 위치와 크기 정보를 가져오기
+          const rect = $box.getBoundingClientRect();
+          console.log(rect);
+
+          // 박스의 위치를 50px씩 우측 하단으로 이동
+          $box.style.top = `${rect.top + 50}px`;
+          $box.style.left = `${rect.left + 50}px`;
+        });
+
+        // 마우스 좌표정보 가져오기
+        document.addEventListener('mousemove', e => {
+          // console.log(`x: ${e.clientX}, y: ${e.clientY}`);
+        });
+
+        // 스크롤 위치정보 가져오기
+        document.addEventListener('scroll', e => {
+          // console.log(`스크롤위치: ${window.scrollY}`);
+          if (window.scrollY >= 500) {
+            document.body.style.background = 'violet';
+          } else {
+            document.body.style.background = 'transparent';
+          }
+        });
+    </script>
+</body>
+</html>
