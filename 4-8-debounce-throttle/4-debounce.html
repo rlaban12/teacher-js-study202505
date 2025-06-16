@@ -66,12 +66,12 @@
         // 이 변수는 debounce함수의 실행 완료시에도 사라지지 않습니다.
         let timerId = null;
 
-        return function (args) {
+        return function (...args) {
           // console.log('이전 예약 취소!');
           clearTimeout(timerId);
 
           timerId = setTimeout(() => {
-            callback(args);
+            callback(...args);
           }, delay);
         };
       }
