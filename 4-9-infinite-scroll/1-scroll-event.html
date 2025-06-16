@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-container {
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .content-item {
+            padding: 20px;
+            margin: 10px 0;
+            background-color: #f0f2f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .loading {
+            margin: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container" id="contentContainer">
+        <!-- 초기 콘텐츠 -->
+        <div class="content-item">초기 콘텐츠 1</div>
+        <div class="content-item">초기 콘텐츠 2</div>
+        <div class="content-item">초기 콘텐츠 3</div>
+        <div class="content-item">초기 콘텐츠 4</div>
+        <div class="content-item">초기 콘텐츠 5</div>
+        <div class="content-item">초기 콘텐츠 6</div>
+        <div class="content-item">초기 콘텐츠 7</div>
+        <div class="content-item">초기 콘텐츠 8</div>
+        <div class="content-item">초기 콘텐츠 9</div>
+        <div class="content-item">초기 콘텐츠 10</div>
+        <div class="content-item">초기 콘텐츠 11</div>
+        <div class="content-item">초기 콘텐츠 12</div>
+        <div class="content-item">초기 콘텐츠 13</div>
+        <div class="content-item">초기 콘텐츠 14</div>
+        <div class="content-item">초기 콘텐츠 15</div>
+        <div class="content-item">초기 콘텐츠 16</div>
+    </div>
+    <div class="loading" id="loading" style="display: none;">새로운 콘텐츠 로딩 중...</div>
+
+    <script>
+
+      // 스로틀 함수 정의
+      function throttle(callback, delay) {
+        let timerId = null; // 현재 스로틀이 쿨타임중인지 아닌지 상태를 기억하는 비공개변수
+
+        return (...args) => {
+          // 쿨타임이 아닐 때만
+          if (!timerId) {
+            // 스로틀 쿨타임 시작
+            timerId = setTimeout(() => {
+              callback(...args); // 1000ms의 딜레이 후에 실행
+              timerId = null;
+            }, delay);
+          }
+        };
+      }
+
+      function scrollHandler(e) {
+
+        // 무한스크롤 이벤트는 스크롤이 화면 최하단에 갔을 때만 발동
+        // 현재 스크롤의 y축 위치
+        const scrollTop = window.scrollY;
+        // console.log(`스크롤 위치: ${scrollTop}`);
+
+        // 현재 뷰포트의 높이 (브라우저에서 보이는 만큼의 높이)
+        const windowHeight = window.innerHeight;
+        // console.log(`뷰포트 높이: ${windowHeight}`);
+
+        // 문서 전체의 높이 (안 보이는 부분까지 포함한 높이)
+        const documentHeight = document.body.offsetHeight;
+        // console.log(`문서 전체 높이: ${documentHeight}`);
+        // console.log('============');
+
+        if (scrollTop + windowHeight >= documentHeight - 100) {
+            console.log('스크롤 이벤트 발생!');
+        }
+      }
+
+      // 스크롤 이벤트 설정
+      window.addEventListener('scroll', throttle(scrollHandler, 1000));
+    </script>
+
+</body>
+</html>
