@@ -138,17 +138,18 @@
       // 클로저를 호출해서 첫번째 조절기의 폰트사이즈를 제어하는 함수
       const { increment, decrement } = createFontSizer(initialSize);
 
-      $incBtn.addEventListener('click', e => {
-        // 새로운 증가된 폰트사이즈 가져오기
-        const newSize = increment();
+      const updateUI = (newSize) => {
         $text.style.fontSize = `${newSize}px`;
         $display.textContent = `${newSize}px`;
+      };
+
+      $incBtn.addEventListener('click', e => {
+        // 새로운 증가된 폰트사이즈 가져오기
+        updateUI(increment());
       });
       $decBtn.addEventListener('click', e => {
         // 새로운 감소된 폰트사이즈 가져오기
-        const newSize = decrement();
-        $text.style.fontSize = `${newSize}px`;
-        $display.textContent = `${newSize}px`;
+        updateUI(decrement());
       });
     }
 
