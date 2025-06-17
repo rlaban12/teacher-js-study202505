@@ -89,6 +89,208 @@
   </div>
 
   <script>
+
+
+    // --- 게임 상태 변수 ---
+    // 이 변수들은 게임의 전체적인 상황을 기록하고 제어합니다.
+    let hero1 = null; // 첫 번째 용사 객체를 저장할 변수입니다. 아직 생성 전이라 null입니다.
+    let hero2 = null; // 두 번째 용사 객체를 저장할 변수입니다.
+    let currentPlayer = 1; // 현재 턴이 어떤 플레이어인지 기억합니다. (1 또는 2)
+    let isGameOver = true; // 게임이 종료되었는지 여부를 나타내는 '깃발(flag)'입니다. true이면 모든 액션이 멈춥니다.
+
+    // --- HTML 요소 캐싱 ---
+    // 스크립트 시작 시점에 필요한 모든 HTML 요소를 미리 찾아 변수에 담아두고 재사용합니다.
+    // 매번 document.getElementById를 호출하는 것보다 효율적이고 코드가 깔끔해집니다.
+    const logDiv = document.getElementById('battle-log');
+
+    // ui 객체: 관련된 UI 요소들을 하나의 객체로 묶어서 관리하면 편리합니다.
+    const ui = {
+      panels: [document.getElementById('panel-1'), document.getElementById('panel-2')],
+      names: [document.querySelector('#panel-1 .panel-title'), document.querySelector('#panel-2 .panel-title')],
+      statuses: [document.getElementById('hero-status-1'), document.getElementById('hero-status-2')],
+      hpBars: [document.getElementById('hp-bar-1'), document.getElementById('hp-bar-2')],
+      buttons: [
+        [document.getElementById('btn-attack-1'), document.getElementById('btn-special-1'), document.getElementById('btn-heal-1')],
+        [document.getElementById('btn-attack-2'), document.getElementById('btn-special-2'), document.getElementById('btn-heal-2')]
+      ],
+      setupAreas: [document.getElementById('setup-1'), document.getElementById('setup-2')],
+      arenas: [document.getElementById('arena-1'), document.getElementById('arena-2')],
+      createBtns: [document.getElementById('btn-create-1'), document.getElementById('btn-create-2')]
+    };
+
+    // --- 용사 생성 공장 (클로저) ---
+    // 용사 객체를 '찍어내는' 함수입니다. 클로저의 마법이 일어나는 곳이죠.
+    function createHero(name, specialMove, attackPower) {
+      // 👇 이 변수들은 createHero 함수 안에 선언된 '비공개(private)' 멤버들입니다.
+      // 이 함수가 실행된 후에도 사라지지 않고, 아래 return 되는 객체의 메서드들만이 접근할 수 있는
+      // '마법 주머니' 안에 안전하게 보관됩니다. 이것이 바로 '클로저'입니다.
+      let health = 100;
+      const maxHealth = 100;
+
+      // 이 객체가 바로 우리가 생성하는 '용사' 인스턴스입니다. 용사의 '스킬'들이죠.
+      return {
+        // 일반 공격 스킬: 기본 공격력에 약간의 랜덤 데미지를 더해 반환합니다.
+        attack: () => Math.floor(Math.random() * 5) + attackPower,
+        // 필살기 스킬: 일반 공격보다 더 강한 데미지를 반환합니다.
+        useSpecialMove: () => Math.floor(Math.random() * 10) + attackPower + 10,
+        // 데미지를 입는 스킬: 외부에서 받은 데미지만큼 '비공개' 변수인 health를 깎습니다.
+        takeDamage: (damage) => {
+          health = Math.max(0, health - damage); // 체력이 0 미만으로 내려가지 않도록 보정
+          return `🩸 ${name}이(가) <span class="log-damage">${damage}</span>의 데미지를 입었다!`;
+        },
+        // 체력을 회복하는 스킬: '비공개' health를 회복시킵니다.
+        heal: (amount) => {
+          health = Math.min(maxHealth, health + amount); // 최대 체력을 넘지 않도록 보정
+          return `✨ ${name}이(가) <span class="log-heal">${amount}</span>의 체력을 회복했다!`;
+        },
+        // 용사의 현재 상태를 '읽기 전용'으로 외부에 알려주는 유일한 통로입니다.
+        getStatus: () => ({ name, health, maxHealth })
+      };
+    }
+
+    // --- 게임 관리 함수 ---
+    // 전투 로그에 메시지를 추가하고, 스크롤을 항상 맨 아래로 내려주는 함수입니다.
+    function addLog(html) {
+      const logEntry = document.createElement('div');
+      logEntry.classList.add('log-entry');
+      logEntry.innerHTML = html; // span 태그 등 HTML을 그대로 넣기 위해 innerHTML 사용
+      logDiv.appendChild(logEntry);
+      // 새 로그가 추가되면 스크롤바를 콘텐츠의 전체 높이만큼 내려서 항상 최신 로그가 보이게 합니다.
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    // 두 용사의 현재 상태(HP, 이름 등)를 읽어서 화면 전체를 업데이트하는 함수입니다.
+    function updateAllUI() {
+      const heroes = [hero1, hero2];
+      for(let i=0; i<2; i++) {
+        if(heroes[i]) { // 용사가 생성되었을 때만 업데이트
+          const status = heroes[i].getStatus();
+          ui.names[i].textContent = status.name;
+          ui.statuses[i].textContent = `HP: ${status.health} / ${status.maxHealth}`;
+          ui.hpBars[i].style.width = `${(status.health / status.maxHealth) * 100}%`;
+        }
+      }
+
+      if (!isGameOver) {
+        const activePlayerIndex = currentPlayer - 1;
+        const inactivePlayerIndex = currentPlayer === 1 ? 1 : 0;
+
+        // 현재 턴인 플레이어의 패널은 활성화시키고, 상대방은 비활성화시킵니다.
+        ui.panels[activePlayerIndex].classList.add('active-turn');
+        ui.panels[activePlayerIndex].classList.remove('inactive-turn');
+        ui.buttons[activePlayerIndex].forEach(btn => btn.disabled = false);
+
+        ui.panels[inactivePlayerIndex].classList.add('inactive-turn');
+        ui.panels[inactivePlayerIndex].classList.remove('active-turn');
+        ui.buttons[inactivePlayerIndex].forEach(btn => btn.disabled = true);
+      }
+    }
+
+    // 턴을 넘기는 함수
+    function switchTurn() {
+      currentPlayer = (currentPlayer === 1) ? 2 : 1; // 1이면 2로, 2이면 1로 변경
+      const nextPlayerName = (currentPlayer === 1) ? hero1.getStatus().name : hero2.getStatus().name;
+      addLog(`<div class="log-turn">--- ${nextPlayerName}의 턴 ---</div>`);
+      updateAllUI();
+    }
+
+    // 게임이 끝났는지 확인하는 함수
+    function checkGameOver() {
+      if (hero1.getStatus().health === 0 || hero2.getStatus().health === 0) {
+        isGameOver = true; // 게임 종료 플래그를 true로
+        ui.buttons.flat().forEach(btn => btn.disabled = true); // 모든 버튼 비활성화
+        ui.panels.forEach(panel => panel.classList.remove('active-turn', 'inactive-turn'));
+
+        const winner = (hero1.getStatus().health > 0) ? hero1.getStatus().name : hero2.getStatus().name;
+        addLog(`<div class="log-victory">🎉 전투 종료! 최후의 승자는 ${winner}! 🎉</div>`);
+        return true;
+      }
+      return false;
+    }
+
+    // 두 용사가 모두 생성되면 전투를 시작하는 '게이트 키퍼' 함수
+    function tryToStartBattle() {
+      if (hero1 && hero2) { // hero1과 hero2가 모두 생성되었을 때 (null이 아닐 때)
+        isGameOver = false; // 게임 시작 플래그를 false로
+        addLog('⚔️ 모든 용사가 준비 완료! 전투를 시작합니다! ⚔️');
+        ui.arenas.forEach(arena => arena.classList.remove('hidden'));
+        switchTurn(); // 첫 턴 시작
+      }
+    }
+
+    // 사용자의 액션(공격, 힐 등)을 중앙에서 처리하는 함수
+    function handleAction(attacker, defender, action) {
+      if (isGameOver) return; // 게임이 끝났으면 아무것도 실행하지 않음
+      let message = '';
+
+      if (action === 'attack') {
+        const damage = attacker.attack(); // 공격자가 데미지를 계산
+        addLog(`${attacker.getStatus().name}의 일반 공격!`);
+        message = defender.takeDamage(damage); // 방어자가 그 데미지를 입음
+      } else if (action === 'special') {
+        const damage = attacker.useSpecialMove();
+        addLog(`${attacker.getStatus().name}의 필살기!`);
+        message = defender.takeDamage(damage);
+      } else if (action === 'heal') {
+        if (attacker.getStatus().health === attacker.getStatus().maxHealth) {
+          addLog(`${attacker.getStatus().name}은(는) 이미 체력이 가득 찼다.`);
+          return; // 턴을 넘기지 않고 행동 종료
+        }
+        const healAmount = 25;
+        message = attacker.heal(healAmount);
+      }
+
+      addLog(message);
+      updateAllUI(); // 화면 상태 업데이트
+
+      if (!checkGameOver()) { // 게임이 끝나지 않았다면
+        setTimeout(switchTurn, 1000); // 1초 후에 턴을 넘김 (상대방이 생각할 시간)
+      }
+    }
+
+    // --- 이벤트 리스너 설정 ---
+    // 각 '생성' 버튼이 독립적으로 동작하도록 설정
+    ui.createBtns[0].addEventListener('click', () => {
+      const name = document.getElementById('hero-name-1').value.trim();
+      const move = document.getElementById('special-move-1').value.trim();
+      if (!name || !move) return alert('용사 1의 정보를 입력하세요!');
+
+      hero1 = createHero(name, move, 15);
+      ui.setupAreas[0].classList.add('hidden');
+      // 생성 후, 용사 이름과 초기 HP를 바로 표시해줍니다.
+      const status = hero1.getStatus();
+      ui.names[0].textContent = status.name;
+      ui.statuses[0].textContent = `HP: ${status.health} / ${status.maxHealth}`;
+
+      addLog(`🚩 용사1 [${name}] 생성 완료!`);
+      tryToStartBattle();
+    });
+
+    ui.createBtns[1].addEventListener('click', () => {
+      const name = document.getElementById('hero-name-2').value.trim();
+      const move = document.getElementById('special-move-2').value.trim();
+      if (!name || !move) return alert('용사 2의 정보를 입력하세요!');
+
+      hero2 = createHero(name, move, 12);
+      ui.setupAreas[1].classList.add('hidden');
+      // 생성 후, 용사 이름과 초기 HP를 바로 표시해줍니다.
+      const status = hero2.getStatus();
+      ui.names[1].textContent = status.name;
+      ui.statuses[1].textContent = `HP: ${status.health} / ${status.maxHealth}`;
+
+      addLog(`🏁 용사2 [${name}] 생성 완료!`);
+      tryToStartBattle();
+    });
+
+    // 액션 버튼 리스너
+    // 각 버튼은 handleAction 함수에 '누가', '누구를', '무엇으로' 공격할지 정보만 넘겨줍니다.
+    ui.buttons[0][0].addEventListener('click', () => handleAction(hero1, hero2, 'attack'));
+    ui.buttons[0][1].addEventListener('click', () => handleAction(hero1, hero2, 'special'));
+    ui.buttons[0][2].addEventListener('click', () => handleAction(hero1, null, 'heal')); // 힐은 자기 자신에게 하므로 defender는 불필요
+
+    ui.buttons[1][0].addEventListener('click', () => handleAction(hero2, hero1, 'attack'));
+    ui.buttons[1][1].addEventListener('click', () => handleAction(hero2, hero1, 'special'));
+    ui.buttons[1][2].addEventListener('click', () => handleAction(hero2, null, 'heal'));
   </script>
 </body>
 </html>

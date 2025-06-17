@@ -1,0 +1,221 @@
+/* 웹 폰트 (Noto Sans KR) 불러오기 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+/* --- 1. 기본 & 전역 스타일 --- */
+:root {
+    --primary-color: #0d6efd; /* 메인 파란색 */
+    --success-color: #198754; /* 성공 초록색 */
+    --warning-color: #fd7e14; /* UP 주황색 */
+    --danger-color: #dc3545;  /* 기회 감소 빨간색 (나중을 위해) */
+    --light-gray: #f8f9fa;
+    --gray: #dee2e6;
+    --dark-gray: #495057;
+    --text-color: #212529;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--light-gray);
+    /* 화면 중앙에 게임을 배치하는 Flexbox 방식 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* --- 2. 게임 컨테이너 레이아웃 --- */
+.game-container {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 20px 30px 30px 30px;
+}
+
+/* --- 3. 헤더 (타이틀, 게임 상태) --- */
+.game-header {
+    border-bottom: 1px solid var(--gray);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.main-title {
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    color: var(--dark-gray);
+}
+
+.game-stats span {
+    font-weight: 700;
+    font-size: 1.2em;
+    color: var(--primary-color);
+}
+
+/* --- 4. 메인 게임 영역 (입력, 피드백, 기록) --- */
+.guess-form {
+    display: flex;
+    gap: 10px;
+}
+
+#guess-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    font-size: 18px;
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+}
+
+#guess-input:focus {
+    border-color: var(--primary-color);
+}
+/* Chrome, Safari, Edge, Opera 에서 숫자 입력창 화살표 숨기기 */
+#guess-input::-webkit-outer-spin-button,
+#guess-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.guess-button {
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.guess-button:hover {
+    background-color: #0b5ed7;
+}
+
+.feedback {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    min-height: 36px; /* 높이를 고정하여 레이아웃 흔들림 방지 */
+}
+
+/* JS에서 클래스를 추가하여 색상 변경 */
+.feedback-text.up { color: var(--warning-color); }
+.feedback-text.down { color: var(--primary-color); }
+.feedback-text.correct { color: var(--success-color); }
+
+/* --- 5. 도전 기록 --- */
+.history {
+    margin-top: 30px;
+}
+
+.history-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+}
+.history-item.up { background-color: var(--warning-color); }
+.history-item.down { background-color: var(--primary-color); }
+
+/* --- 6. 게임 종료 모달 --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 초기 상태 (숨김) */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    /* 초기 상태 */
+    transform: scale(0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--success-color);
+    margin-bottom: 10px;
+}
+
+.modal-content p {
+    font-size: 18px;
+    color: var(--dark-gray);
+    margin-bottom: 30px;
+}
+
+#restart-button {
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: var(--dark-gray);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#restart-button:hover {
+    background-color: #343a40;
+}
