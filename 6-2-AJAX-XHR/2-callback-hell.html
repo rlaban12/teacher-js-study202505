@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+  <button id="fetchData">데이터 불러오기</button>
+
+  <script>
+    const $btn = document.getElementById('fetchData');
+
+    function fetchGet(url, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url); // 요청 세팅
+      xhr.send(); // 요청 보내기
+      // 응답 데이터 가져오기
+      xhr.addEventListener('load', e => {
+        const responseData = JSON.parse(xhr.responseText);
+        callback(responseData);
+      });
+    }
+
+    const url = `https://jsonplaceholder.typicode.com`;
+
+    $btn.addEventListener('click', e => {
+      // 1. 회원목록 조회
+      fetchGet(`${url}/users`, (response) => {
+        // 2. 그 중에 두번째 회원이 쓴 게시물 정보를 추가조회한다.
+        fetchGet(`${url}/posts?userId=${response[1].id}`, (response2) => {
+          // console.log(response2);
+          // 3. 그 중 4번째 게시물의 모든 댓글을 가져오고 싶다.
+          fetchGet(`${url}/comments?postId=${response2[3].id}`, (response3) => {
+            console.log(response3);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
