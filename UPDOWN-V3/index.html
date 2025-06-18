@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>업다운 탐정 게임</title>
+
+  <link rel="stylesheet" href="css/main.css">
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+
+  <div class="setup-container">
+    <h1 class="main-title">UP & DOWN 탐정 게임</h1>
+    <div class="difficulty-selector">
+      <label for="difficulty">난이도 선택:</label>
+      <select id="difficulty">
+        <option value="easy">쉬움 (1-50, 기회 8번)</option>
+        <option value="normal" selected>보통 (1-100, 기회 10번)</option>
+        <option value="hard">어려움 (1-200, 기회 10번)</option>
+      </select>
+    </div>
+    <button id="start-game-button">게임 시작!</button>
+  </div>
+
+  <div class="game-container hidden">
+    <header class="game-header">
+      <h1 class="main-title">UP & DOWN 게임</h1>
+      <div class="game-stats">
+        <div class="range-info">
+          범위: <span id="begin">1</span> ~ <span id="end">100</span>
+        </div>
+        <div class="chances-info">
+          남은 기회: <span id="chances-left">10</span>회
+        </div>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <form id="guess-form" class="guess-form" novalidate>
+        <input type="number" id="guess-input" min="1" max="100" placeholder="숫자를 입력하세요..." required>
+        <div class="btn-group">
+          <button type="submit" class="guess-button">도전!</button>
+          <button type="button" id="hint-button" class="hint-button">💡 힌트</button>
+          <button type="button" id="give-up-button" class="give-up-button">🏳️ 포기</button>
+        </div>
+      </form>
+
+      <div class="feedback">
+        <p class="feedback-text" id="feedback">추리를 시작하세요!</p>
+      </div>
+
+      <div class="history">
+        <h2 class="history-title">📜 나의 도전 기록</h2>
+        <ul class="history-list" id="history-list">
+        </ul>
+      </div>
+    </main>
+
+  </div>
+
+  <div id="finish-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="finish-title">Congratulation!</h2>
+      <p id="finish-text">정답은 55였습니다!</p>
+      <button id="restart-button">다시 도전하기</button>
+    </div>
+  </div>
+
+</body>
+</html>
