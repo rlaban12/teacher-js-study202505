@@ -20,6 +20,9 @@ const $chancesLeft = document.getElementById('chances-left');
 const $feedback = document.getElementById('feedback');
 const $historyList = document.getElementById('history-list');
 
+// 힌트 버튼 추가
+const $hintBtn = document.getElementById('hint-button');
+
 const $finishModal = document.getElementById('finish-modal');
 const $finishTitle = document.getElementById('finish-title');
 const $finishText = document.getElementById('finish-text');
@@ -38,10 +41,6 @@ function updateFeedback(feedbackText, feedbackClass) {
 // 1. 업다운 정답 판정 로직
 function judgeGuess() {
   const { secretNumber, userAnswer } = gameData;
-
-
-
-
 
   // 값 비교
   // 정답인 경우
@@ -77,6 +76,7 @@ function judgeGuess() {
       resultClass: result.toLowerCase()
     });
 
+
     // 자동 정답인 경우
     if (
       gameData.minRange === gameData.maxRange
@@ -90,6 +90,7 @@ function judgeGuess() {
     if (gameData.remainingChanges === 0) {
       showFinishModal(false);
     }
+
 
     // 모든 판정이 끝난 후 UI 업데이트
     updateUI();
@@ -203,6 +204,20 @@ $guessForm.addEventListener('submit', e => {
 // 2. 게임 재시작 이벤트
 $restartBtn.addEventListener('click', e => {
   initializeGame();
+});
+
+// 3. 힌트 버튼 이벤트
+$hintBtn.addEventListener('click', e => {
+  if (gameData.remainingChanges < 2) {
+    alert('기회가 부족하여 힌트를 사용할 수 없습니다!');
+    return;
+  }
+
+  gameData.remainingChanges--;
+
+  const hint = gameData.secretNumber % 2 === 0 ? '짝수' : '홀수';
+  updateFeedback(`힌트: 정답은 ${hint}입니다. (기회 1회 차감)`, '');
+  updateUI();
 });
 
 // ==== 실행 코드 ==== //
