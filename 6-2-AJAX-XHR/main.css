@@ -1,0 +1,210 @@
+/* --- 웹 폰트 및 기본 설정 --- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #ff6f61;
+    --light-gray: #f8f9fa;
+    --gray: #dee2e6;
+    --dark-gray: #495057;
+    --text-color: #212529;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--light-gray);
+    margin: 0;
+    padding: 20px;
+}
+
+ol, ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* --- 전체 레이아웃 --- */
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px 40px;
+}
+
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--gray);
+    padding-bottom: 20px;
+}
+
+.app-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.app-header p {
+    font-size: 16px;
+    color: var(--dark-gray);
+    margin-top: 10px;
+}
+
+/* --- 재료 입력 섹션 --- */
+.input-section {
+    margin-bottom: 30px;
+}
+
+#ingredient-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#ingredient-form input {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#ingredient-form input:focus {
+    border-color: var(--primary-color);
+}
+
+#ingredient-form button {
+    padding: 0 20px;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: var(--dark-gray);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* --- 태그 스타일 --- */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 40px; /* 태그가 없을 때도 높이 유지 */
+    padding: 10px;
+    background-color: #f1f3f5;
+    border-radius: 8px;
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.remove-tag {
+    margin-left: 8px;
+    border: none;
+    background: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.get-recipe-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.2s;
+}
+
+.get-recipe-button:hover {
+    background-color: #e65a50;
+}
+
+/* --- 결과 표시 섹션 --- */
+.results-section {
+    margin-top: 30px;
+}
+
+.loading {
+    text-align: center;
+    color: var(--dark-gray);
+    padding: 40px 0;
+}
+
+.loading i {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    animation: spinner-rotate 1.5s infinite linear;
+}
+
+.loading p {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.recipe-card {
+    background-color: #fff9f8;
+    border: 1px solid #ffe8e6;
+    border-radius: 8px;
+    padding: 30px;
+    white-space: pre-wrap; /* Gemini가 보내준 줄바꿈을 그대로 표시 */
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+/* 레시피 내용물 스타일 (Gemini 응답이 h2, li 등을 포함할 경우를 대비) */
+.recipe-card h2 {
+    font-size: 22px;
+    color: #d9534f;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.recipe-card h3 {
+    font-size: 18px;
+    color: var(--text-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #f2d4d2;
+    padding-bottom: 5px;
+}
+
+.recipe-card ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.recipe-card li {
+    margin-bottom: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 스피너 애니메이션 */
+@keyframes spinner-rotate {
+    from { transform: rotate(0); }
+    to { transform: rotate(360deg); }
+}
