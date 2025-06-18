@@ -32,12 +32,21 @@ const $restartBtn = document.getElementById('restart-button');
 function updateFeedback(feedbackText, feedbackClass) {
   $feedback.textContent = feedbackText;
   $feedback.classList.remove('up', 'down', 'correct');
-  $feedback.classList.add(feedbackClass);
+  if (feedbackClass) $feedback.classList.add(feedbackClass);
 }
 
 // 1. 업다운 정답 판정 로직
 function judgeGuess() {
   const { secretNumber, userAnswer } = gameData;
+
+  // GAME OVER 처리
+  if (gameData.remainingChanges === 0) {
+    showFinishModal(false);
+    return;
+  }
+
+
+
   // 값 비교
   // 정답인 경우
   if (secretNumber === userAnswer) {
@@ -72,6 +81,15 @@ function judgeGuess() {
       resultClass: result.toLowerCase()
     });
 
+    // 자동 정답인 경우
+    if (
+      gameData.minRange === gameData.maxRange
+      && gameData.remainingChanges > 0
+    ) {
+      updateFeedback(`정답은 ${gameData.minRange}밖에 없네요!`, 'correct');
+      showFinishModal();
+    }
+
     // 모든 판정이 끝난 후 UI 업데이트
     updateUI();
   }
@@ -101,20 +119,48 @@ function updateUI() {
   });
 
   // 인풋 초기화
-  $guessInput.value = '';
-  $guessInput.focus();
+  resetInput();
 }
 
 // 3. 모달을 제어하는 로직
-function showFinishModal() {
+function showFinishModal(isCorrect = true) {
   setTimeout(() => {
 
     $finishModal.classList.add('show');
+    $finishText.textContent = `정답은 ${gameData.secretNumber}였습니다!`;
+
+    if (isCorrect) {
+      $finishTitle.textContent = `Congratulation!`;
+      $finishTitle.style.color = 'var(--success-color)';
+    } else {
+      $finishTitle.textContent = `GAME OVER`;
+      $finishTitle.style.color = 'var(--danger-color)';
+    }
 
   }, 1000);
 }
 
+function resetInput() {
+  $guessInput.value = '';
+  $guessInput.focus();
+}
+
 // 4. 게임을 재시작하는 로직
+function initializeGame() {
+  // 데이터 리셋
+  gameData.secretNumber = Math.floor(Math.random() * 100) + 1;
+  gameData.remainingChanges = 10;
+  gameData.minRange = 1;
+  gameData.maxRange = 100;
+  gameData.guessHistory = [];
+
+  console.log(`정답: ${gameData.secretNumber}`);
+
+  // UI 리셋
+  updateFeedback('추리를 시작하세요', '');
+  $finishModal.classList.remove('show');
+  updateUI();
+}
 
 // 숫자 입력을 검증하는 함수
 function isValidate(userGuess) {
@@ -124,8 +170,7 @@ function isValidate(userGuess) {
     || userGuess > gameData.maxRange
   ) {
     alert(`반드시 ${gameData.minRange}와 ${gameData.maxRange} 사이의 숫자를 입력하세요!`);
-    $guessInput.value = '';
-    $guessInput.focus();
+    resetInput();
     return false;
   }
   return true;
@@ -154,5 +199,10 @@ $guessForm.addEventListener('submit', e => {
 
 });
 
+// 2. 게임 재시작 이벤트
+$restartBtn.addEventListener('click', e => {
+  initializeGame();
+});
+
 // ==== 실행 코드 ==== //
-console.log(`정답: ${gameData.secretNumber}`);
+initializeGame();
