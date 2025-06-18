@@ -70,6 +70,7 @@ body {
 /* --- 4. 메인 게임 영역 (입력, 피드백, 기록) --- */
 .guess-form {
     display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
@@ -94,16 +95,11 @@ body {
     margin: 0;
 }
 
-.hint-button {
-    padding: 12px 15px;
-    font-size: 18px;
-    font-weight: 700;
-    background-color: #ffc107; /* 힌트를 의미하는 노란색 */
-    color: #333;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    flex-shrink: 0; /* 버튼이 찌그러지지 않도록 */
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .guess-button {
@@ -116,6 +112,31 @@ body {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+.hint-button {
+    padding: 12px 15px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: #ffc107; /* 힌트를 의미하는 노란색 */
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0; /* 버튼이 찌그러지지 않도록 */
+}
+
+
+.give-up-button {
+    padding: 12px 15px;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: var(--dark-gray);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .guess-button:hover {

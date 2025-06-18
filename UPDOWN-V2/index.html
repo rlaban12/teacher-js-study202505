@@ -28,8 +28,11 @@
     <main class="game-main">
       <form id="guess-form" class="guess-form" novalidate>
         <input type="number" id="guess-input" min="1" max="100" placeholder="숫자를 입력하세요..." required>
-        <button type="button" id="hint-button" class="hint-button">💡 힌트</button>
-        <button type="submit" class="guess-button">도전!</button>
+        <div class="btn-group">
+          <button type="submit" class="guess-button">도전!</button>
+          <button type="button" id="hint-button" class="hint-button">💡 힌트</button>
+          <button type="button" id="give-up-button" class="give-up-button">🏳️ 포기</button>
+        </div>
       </form>
 
       <div class="feedback">
