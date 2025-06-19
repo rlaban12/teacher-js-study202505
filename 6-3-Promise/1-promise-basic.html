@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+<script>
+
+  // 프로미스 생성을 위한 실행기 정의
+  function executor(resolve, reject) {
+    // resolve : 약속이 이행되었을 때 실행할 콜백
+    // reject : 약속이 거부되었을 때 실행할 콜백
+    const flag = true;
+    if (flag) {
+      resolve('야호 신난다!! 김치찌개 냠냠');
+    } else {
+      reject('실패!! 주방에 불이났어요!');
+    }
+  }
+  // 프로미스 생성
+  // (비동기 통신을 순차적으로 실행하고자 하나, 콜백지옥이 만들어지는걸 해결)
+  const myPromise1 = new Promise(executor); // 첫번째 작업
+  // console.log(myPromise1);
+
+  // 두번째 작업
+  // 첫번째 작업에서 성공 메시지를 받아서 그 메시지에 추가 메시지를 더해서 출력!
+  const myPromise2 = myPromise1.then((x) => {
+    // console.log(x);
+    const result = x + ' 계산은 어디서 하죠??';
+    return new Promise((resolve, reject) => {
+      resolve(result); // 성공했을 때 실행할 콜백
+    });
+  });
+
+  // 세번째 작업
+  // 두번째 작업에서 나온 메시지를 이어받아 작업
+  const myPromise3 = myPromise2.then((message) => {
+    console.log(message);
+  });
+
+</script>
+</body>
+</html>

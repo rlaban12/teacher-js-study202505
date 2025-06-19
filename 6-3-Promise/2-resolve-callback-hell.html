@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+    <button id="fetchData">데이터 불러오기</button>
+
+    <script>
+      const serverUrl = `https://jsonplaceholder.typicode.com`;
+
+      const $fetchBtn = document.getElementById('fetchData');
+
+      function fetchGet(url) {
+        return new Promise((resolve, reject) => {
+
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url); // 요청 세팅
+          xhr.send(); // 요청 보내기
+          // 응답 데이터 가져오기
+          xhr.addEventListener('load', e => {
+            const responseData = JSON.parse(xhr.responseText);
+            resolve(responseData);
+          });
+
+          // 서버 에러시 발동하는 이벤트
+          xhr.addEventListener('error', e => {
+            reject('서버 통신 중 에러 발생!');
+          });
+
+        });
+
+      }
+
+      /*$fetchBtn.addEventListener('click', e => {
+        // 1. 회원목록을 조회한다
+        const firstRequest = fetchGet(`${serverUrl}/users`);
+        // console.log(firstRequest);
+        // 2. 그중에 두번째 회원의 게시물 정보를 조회
+        const secondRequest = firstRequest.then((userList) => {
+          // console.log(userList[1]);
+          return fetchGet(`${serverUrl}/posts?userId=${userList[1].id}`);
+        });
+        // console.log(secondRequest);
+        // 3. 그 회원이 쓴 네번째 게시물의 댓글 목록을 조회
+        const thirdRequest = secondRequest.then((postList) => {
+          // console.log(postList[3]);
+          return fetchGet(`${serverUrl}/comments?postId=${postList[3].id}`);
+        });
+
+        // 댓글 목록을 바디태그에 삽입
+        thirdRequest.then((commentList) => {
+          console.log(commentList);
+          commentList.forEach(comment => {
+            const $div = document.createElement('div');
+            $div.textContent = comment.name;
+
+            document.body.append($div);
+          });
+        });
+      });*/
+
+      $fetchBtn.addEventListener('click', e => {
+
+        fetchGet(`${serverUrl}/users`)
+          .then((userList) => fetchGet(`${serverUrl}/posts?userId=${userList[1].id}`))
+          .then((postList) => fetchGet(`${serverUrl}/comments?postId=${postList[3].id}`))
+          .then((commentList) => {
+            commentList.forEach(comment => {
+              const $div = document.createElement('div');
+              $div.textContent = comment.name;
+              document.body.append($div);
+            });
+          });
+      });
+    </script>
+</body>
+</html>
