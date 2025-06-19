@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pokemon-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pokemon {
+            width: 150px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .pokemon img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .loading {
+            margin: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        #modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            display: none;
+            z-index: 1000;
+            text-align: left;
+        }
+
+        #modal h2 {
+            margin-top: 0;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .type-image {
+            width: 20px;
+            margin-right: 5px;
+        }
+
+        .type-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .type-box strong {
+            flex: 1;
+        }
+
+        .type-box ul {
+            flex: 7;
+            list-style: none;
+            display: flex;
+            padding-left: 10px;
+            margin: 0;
+        }
+
+        .type-box ul li {
+            margin-right: 10px;
+            width: 10%;
+        }
+
+        .type-box ul li img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="prev">이전</button>
+    <button id="next">다음</button>
+
+    <h1>포켓몬 도감</h1>
+    <div class="pokemon-container" id="pokemonContainer"></div>
+    <div class="loading" id="loading">로딩 중...</div>
+
+    <!-- 모달 -->
+    <div id="overlay"></div>
+    <div id="modal">
+        <h2 id="modalTitle">포켓몬 정보</h2>
+        <p id="modalDetails"></p>
+        <img id="modalImage" src="" alt="포켓몬 이미지" style="width: 150px; height: 150px;">
+        <div class="type-box">
+            <strong>타입: </strong>
+            <ul id="modalTypes"></ul>
+        </div>
+        <div class="damage-relations">
+            <h3>데미지 관계</h3>
+            <p><strong>더블 데미지:</strong> <span id="doubleDamage"></span></p>
+            <p><strong>반감 데미지:</strong> <span id="halfDamage"></span></p>
+            <p><strong>노 데미지:</strong> <span id="noDamage"></span></p>
+        </div>
+        <button id="closeModal">닫기</button>
+    </div>
+
+    <script>
+      const $pokeContainer = document.getElementById('pokemonContainer');
+      const $loading = document.getElementById('loading');
+      const $prev = document.getElementById('prev');
+      const $next = document.getElementById('next');
+
+      // 모달
+      const $overlay = document.getElementById('overlay');
+      const $modal = document.getElementById('modal');
+      const $modalCloseBtn = document.getElementById('closeModal');
+      const $modalImage = document.getElementById('modalImage');
+      const $modalDetail = document.getElementById('modalDetails');
+      const $modalTypes = document.getElementById('modalTypes');
+
+      const $doubleDamage = document.getElementById('doubleDamage');
+      const $halfDamage = document.getElementById('halfDamage');
+      const $noDamage = document.getElementById('noDamage');
+
+      const pokeUrl = 'https://pokeapi.co/api/v2/pokemon';
+
+      // 시작 위치
+      let offset = 1290;
+      // 가져올 개수
+      let limit = 45;
+      // 로딩 중인지 상태 체크
+      let isLoading = false;
+      // 총 포켓몬 수
+      let pokeCount;
+
+      // 서버에서 포켓몬 정보를 불러오는 함수
+      async function getPokemon() {
+
+        if (isLoading) return;
+
+        // 기존 컨테이너 지우기
+        $pokeContainer.innerHTML = '';
+
+        isLoading = true;
+        $loading.style.opacity = '1';
+
+        setTimeout(async () => {
+          const response = await fetch(`${pokeUrl}?offset=${offset}&limit=${limit}`);
+          const { results, count } = await response.json();
+          pokeCount = count;
+          // console.log(results);
+
+          // forEach는 내부 콜백에서 promise를 사용할 경우 순서를 보장하지 않음
+          // for ~ of는 순서를 보장함
+          for (const pokemon of results) {
+            // 각각의 포켓몬들의 상세정보를 다시 서버에 재요청
+            const res = await fetch(pokemon.url);
+            const { sprites } = await res.json();
+            const imgSrc = sprites.front_default;
+
+            // 화면에 렌더링
+            const $div = document.createElement('div');
+            $div.classList.add('pokemon');
+            $div.innerHTML = `
+                <img src="${imgSrc}" alt="${pokemon.name}">
+                <h3>${pokemon.name}</h3>
+            `;
+
+            $pokeContainer.append($div);
+          }
+
+          // 로딩바 숨기기
+          isLoading = false;
+          $loading.style.opacity = '0';
+        }, 1000);
+
+      }
+
+      // 이벤트 바인딩
+      // 다음 버튼
+      $next.addEventListener('click', e => {
+        // offset과 limit를 조절
+        offset += limit;
+        if (offset > pokeCount) {
+          $pokeContainer.textContent = '다음 데이터가 없습니다.';
+          return;
+        }
+        getPokemon();
+      });
+
+      // 이전 버튼
+      $prev.addEventListener('click', e => {
+        // offset과 limit를 조절
+        offset -= limit;
+        if (offset < 0) {
+          offset = 0;
+          $pokeContainer.textContent = '이전 데이터가 없습니다.';
+          return;
+        }
+        getPokemon();
+      });
+
+      // 초기 실행
+      getPokemon();
+
+    </script>
+</body>
+</html>
