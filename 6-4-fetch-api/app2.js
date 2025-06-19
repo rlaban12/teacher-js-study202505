@@ -80,6 +80,7 @@ ${items}
 `;
   return prompt;
 }
+
 // app.js 파일에 아래 두 함수를 추가하거나 기존 함수를 교체해주세요.
 
 /**
@@ -137,6 +138,49 @@ function renderRecipe(data) {
   );
 }
 
+async function fetchGemini() {
+  const prompt = generatePrompt(ingredients);
+  const payload = {contents: [{parts: [{text: prompt}]}]};
+  const requestData = JSON.stringify(payload);
+
+  // ===  여기서부터 === //
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: requestData
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error!`);
+    }
+
+    const result = await res.json();
+
+    let recipeJsonString = result.candidates[0].content.parts[0].text;
+
+    if (recipeJsonString.startsWith('```')) {
+      console.log('마크다운 형식 감지! JSON 추출을 시작합니다.');
+      // 첫 번째 '{' 와 마지막 '}' 사이의 문자열만 잘라냅니다.
+      const startIndex = recipeJsonString.indexOf('{');
+      const endIndex = recipeJsonString.lastIndexOf('}');
+      recipeJsonString = recipeJsonString.substring(startIndex, endIndex + 1);
+    }
+
+    // 이제 청소된 문자열을 파싱합니다.
+    const recipeData = JSON.parse(recipeJsonString);
+
+    // 렌더링 함수에 깨끗한 객체를 전달하여 화면을 그립니다.
+    renderRecipe(recipeData);
+  } catch (error) {
+    console.error('JSON Parsing Error:', error);
+    $recipeOutput.textContent = '레시피 형식을 분석하는 데 실패했습니다. 다른 재료로 시도해보세요.';
+  } finally {
+    $loading.classList.add('hidden');
+    $recipeOutput.classList.remove('hidden');
+  }
+
+}
 
 /**
  * @description fetch API를 사용하여 Gemini API를 호출하고 결과를 처리합니다.
@@ -151,52 +195,10 @@ function getRecipeFromAI() {
   $recipeOutput.innerHTML = ''; // ✨ 이전 결과 텍스트를 비워줍니다.
   $recipeOutput.classList.add('hidden');
 
-  const prompt = generatePrompt(ingredients);
-  const payload = { contents: [{ parts: [{ text: prompt }] }] };
-  const requestData = JSON.stringify(payload);
+  fetchGemini();
 
-  // ===  여기서부터 === //
-  fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: requestData
-  })
-    .then(res => {
-      // fetch는 서버가 에러 상태코드를 보내도 바로 catch로 reject하지 않습니다.
-      // 그래서 상태코드를 확인해서 ok가 아닌 경우 직접 에러를 만들어서 보내야함
-      if (!res.ok) {
-        throw new Error(`HTTP error!`);
-      }
-      return res.json();
-    })
-    .then(result => {
-      let recipeJsonString = result.candidates[0].content.parts[0].text;
-
-      if (recipeJsonString.startsWith('```')) {
-        console.log('마크다운 형식 감지! JSON 추출을 시작합니다.');
-        // 첫 번째 '{' 와 마지막 '}' 사이의 문자열만 잘라냅니다.
-        const startIndex = recipeJsonString.indexOf('{');
-        const endIndex = recipeJsonString.lastIndexOf('}');
-        recipeJsonString = recipeJsonString.substring(startIndex, endIndex + 1);
-      }
-
-      // 이제 청소된 문자열을 파싱합니다.
-      const recipeData = JSON.parse(recipeJsonString);
-
-      // 렌더링 함수에 깨끗한 객체를 전달하여 화면을 그립니다.
-      renderRecipe(recipeData);
-    })
-    .catch(error => {
-      console.error('JSON Parsing Error:', error);
-      $recipeOutput.textContent = '레시피 형식을 분석하는 데 실패했습니다. 다른 재료로 시도해보세요.';
-    })
-    .finally(() => {
-      // 에러가 나든 안나든 항상 실행할 코드
-      // 로딩바를 숨김, 아웃풋 컨테이너를 보여주는 코드
-      $loading.classList.add('hidden');
-      $recipeOutput.classList.remove('hidden');
-    });
 }
+
 // ========== 이벤트 리스너 설정 ========== //
 
 // 재료 입력 폼 제출 이벤트

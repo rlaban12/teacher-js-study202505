@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+</head>
+<body>
+
+    <button id="btn">데이터 불러오기</button>
+
+    <script>
+      const $btn = document.getElementById('btn');
+      const url = `https://jsonplaceholder.typicode.com/users`;
+
+      // 회원데이터를 서버에서 불러오는 함수 fetch로 구현
+      function fetchGet() {
+        fetch(url)
+          .then(res => res.json())
+          .then(userList => {
+            console.log(userList);
+          });
+      }
+
+      // async await으로 fetch 코드 간소화
+      async function fetchGetAsync() {
+        const res = await fetch(url);
+        const userList = await res.json();
+        console.log(userList);
+      }
+
+      $btn.addEventListener('click', e => {
+        // fetchGet();
+        fetchGetAsync();
+      });
+    </script>
+</body>
+</html>
