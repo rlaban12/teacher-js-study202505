@@ -496,9 +496,11 @@
     const $modal = document.getElementById('modal');
     const $modalCloseBtn = document.getElementById('closeModal');
 
+    // ✨ 모달 내부의 컨테이너를 캐싱합니다.
     const $modalContent = document.getElementById('modal-content');
     const $modalSkeleton = document.getElementById('modal-skeleton');
 
+    // ✨ 실제 데이터가 들어갈 요소들을 캐싱합니다.
     const $modalTitle = document.getElementById('modalTitle');
     const $modalImage = document.getElementById('modalImage');
     const $modalDetail = document.getElementById('modalDetails');
@@ -507,25 +509,109 @@
 
     const pokeUrl = 'https://pokeapi.co/api/v2/pokemon';
     let offset = 0;
-    let limit = 40;
-    let pokeCount;
+    let limit = 40; // 화면에 더 잘 맞게 조정
+    let count;
     let isLoading = false;
 
-    // 모달 여는 함수
     function openModal() {
-      // 뒷배경 스크롤 방지
-      document.body.style.overflow = 'hidden';
-      $modal.style.display = 'flex';
       $overlay.style.display = 'block';
-    }
+      $modal.style.display = 'flex';
 
-    // 모달 닫는 함수
+    }
     function closeModal() {
-      document.body.style.overflow = '';
-      $modal.style.display = 'none';
       $overlay.style.display = 'none';
+      $modal.style.display = 'none';
+      // 모달을 닫을 때 다음 포켓몬을 위해 설정했던 배경 이미지를 제거합니다.
+      $modal.style.setProperty('--modal-bg-image', 'none');
+
     }
 
+    $pokeContainer.addEventListener('click', async (e) => {
+      const $pokeDiv = e.target.closest('.pokemon');
+      if (!$pokeDiv) return;
+
+      // 스켈레톤을 먼저 보여주고 모달을 즉시 엽니다.
+      $modalContent.style.display = 'none';
+      $modalSkeleton.style.display = 'flex';
+      openModal();
+
+      // 모달 초기화
+      $modalTitle.textContent = '로딩중...';
+      $modalImage.src =
+              'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; // 투명 이미지
+      $modalDetail.textContent = '';
+      $modalTypes.innerHTML = '';
+      $doubleDamage.innerHTML = '';
+
+      const res = await fetch($pokeDiv.dataset.url);
+      const pokemonData = await res.json();
+
+      const { name, height, weight, base_experience, types } = pokemonData;
+
+      // 포켓몬의 첫 번째 타입을 대표 타입으로 간주합니다.
+      const primaryTypeName = types[0].type.name;
+      const primaryTypeImageUrl = typeImages.find(
+              (img) => img.name === primaryTypeName
+      )?.url;
+
+      $modalTitle.textContent = name;
+      $modalImage.src = pokemonData.sprites.front_default;
+      $modalDetail.textContent = `키: ${height / 10}m | 무게: ${
+              weight / 10
+      }kg | 경험치: ${base_experience}`;
+
+      const typePromises = types.map((typeInfo) =>
+              fetch(typeInfo.type.url).then((res) => res.json())
+      );
+      const typeDetails = await Promise.all(typePromises);
+
+      let allDoubleDamageFrom = new Set();
+      types.forEach((typeInfo, index) => {
+        const typeName = typeInfo.type.name;
+        const typeImageUrl = typeImages.find(
+                (img) => img.name === typeName
+        )?.url;
+
+        if (typeImageUrl) {
+          const $li = document.createElement('li');
+          $li.innerHTML = `<img src="${typeImageUrl}" alt="${typeName}" title="${typeName}">`;
+          $modalTypes.append($li);
+        }
+
+        const damageRelations = typeDetails[index].damage_relations;
+        damageRelations.double_damage_from.forEach((dd) =>
+                allDoubleDamageFrom.add(dd.name)
+        );
+      });
+
+      allDoubleDamageFrom.forEach((dName) => {
+        const typeImageUrl = typeImages.find(
+                (img) => img.name === dName
+        )?.url;
+        if (typeImageUrl) {
+          const $li = document.createElement('li');
+          $li.innerHTML = `<img src="${typeImageUrl}" alt="${dName}" title="${dName}">`;
+          $doubleDamage.append($li);
+        }
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      // CSS 변수를 사용해 모달의 배경 이미지를 동적으로 설정합니다.
+      if (primaryTypeImageUrl) {
+        $modal.style.setProperty(
+                '--modal-bg-image',
+                `url(${primaryTypeImageUrl})`
+        );
+      }
+
+      // 모든 컨텐츠가 준비되면 스켈레톤을 숨기고 실제 컨텐츠를 보여줍니다.
+      $modalSkeleton.style.display = 'none';
+      $modalContent.style.display = 'flex';
+    });
+
+    $modalCloseBtn.addEventListener('click', closeModal);
+    $overlay.addEventListener('click', closeModal);
 
     async function getPokemon() {
       if (isLoading) return;
@@ -533,39 +619,27 @@
       $loading.style.opacity = '1';
 
       try {
-        // 비동기로 1초간 정지
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const res = await fetch(`${pokeUrl}?offset=${offset}&limit=${limit}`);
-        const { results, count } = await res.json();
-        pokeCount = count;
+        const { results, count: pokeCount } = await res.json();
+        count = pokeCount;
 
-        // json결과가 들어있는 프로미스 배열을 생성
-        const pokemonPromises
-                = results.map(pokemon => fetch(pokemon.url).then(res => res.json()));
-
-        // Promise.all -> 모든 프로미스를 병렬로 처리
-        const pokemonDataList = await Promise.all(pokemonPromises);
-
-        /*const pokemonDataList = [];
+        const pokemonDataList = [];
         for (const pokemon of results) {
-          // 서버에 각 포켓몬 정보를 일일히 반복 요청
           const detailRes = await fetch(pokemon.url);
           const pokemonData = await detailRes.json();
-          // 렌더링 안하고 그 데이터를 배열에 넣고 있음
           pokemonDataList.push(pokemonData);
-        }*/
+        }
 
-        // 렌더링
+        console.log(pokemonDataList);
+
         pokemonDataList.forEach((pokemonData) => {
-
           const imgSrc = pokemonData.sprites.front_default;
 
           const $div = document.createElement('div');
           $div.classList.add('pokemon');
-          // 포켓몬의 id 또는 개별포켓몬을 불러올 수있는 url을 태그에 심어놓음
-          $div.dataset.url = `${pokeUrl}/${pokemonData.id}`;
-
+          $div.dataset.url = `https://pokeapi.co/api/v2/pokemon/${pokemonData.id}`;
           $div.innerHTML = `
             <img src="${imgSrc}" alt="${pokemonData.name}" loading="lazy">
             <h3>${pokemonData.name}</h3>
@@ -573,97 +647,50 @@
           $pokeContainer.append($div);
         });
 
+        // const pokemonPromises = results.map((p) =>
+        //   fetch(p.url).then((res) => res.json())
+        // );
+        // const allPokemonData = await Promise.all(pokemonPromises);
+
+        // allPokemonData.forEach((pokemon) => {
+        //   const imgSrc =
+        //     pokemon.sprites.front_default;
+        //   const $div = document.createElement('div');
+        //   $div.classList.add('pokemon');
+        //   $div.dataset.url = `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`;
+        //   $div.innerHTML = `
+        //   <img src="${imgSrc}" alt="${pokemon.name}" loading="lazy">
+        //   <h3>${pokemon.name}</h3>
+        // `;
+        //   $pokeContainer.append($div);
+        // });
       } catch (error) {
         console.error('포켓몬 데이터를 가져오는 데 실패했습니다.', error);
-        $pokeContainer.innerHTML += '<p>데이터를 불러오는 데 실패했습니다.</p>';
+        $pokeContainer.innerHTML +=
+                '<p>데이터를 불러오는 데 실패했습니다.</p>';
       } finally {
         isLoading = false;
         $loading.style.opacity = '0';
       }
     }
 
+    const observer = new IntersectionObserver(
+            (entries) => {
+              if (entries[0].isIntersecting && !isLoading) {
+                offset += limit;
+                if (offset > count) {
+                  observer.unobserve($loading);
+                  $loading.innerHTML = '<p>모든 포켓몬을 다 봤어요!</p>';
+                  return;
+                }
+                getPokemon();
+              }
+            },
+            { threshold: 0.8 }
+    );
 
-    // ==== 이벤트 바인딩 ==== //
-    // 모달 닫기 이벤트
-    $modalCloseBtn.addEventListener('click', closeModal);
-    $overlay.addEventListener('click', closeModal);
-
-    // 모달 열기 이벤트
-    $pokeContainer.addEventListener('click', async (e) => {
-
-      const $pokeDiv = e.target.closest('.pokemon');
-
-      if (!$pokeDiv) return;
-
-      // 명시적으로 스켈레톤을 띄우고 컨텐츠를 숨기는 코드
-      $modalContent.style.display = 'none';
-      $modalSkeleton.style.display = 'flex';
-
-      // 모달 열어주기
-      openModal();
-
-      // 지금 클릭대상의 포켓몬정보를 불러와야 함! (서버에 재요청)
-      // 지금 클릭대상 포켓몬이 누구?
-      const res = await fetch($pokeDiv.dataset.url);
-      const pokemonData = await res.json();
-      const { name, height, weight, base_experience, types, sprites } = pokemonData;
-
-      console.log(types);
-
-      // 모달에 데이터 삽입
-      $modalTitle.textContent = name;
-      $modalImage.src = sprites.front_default;
-      $modalDetail.textContent = `키: ${height} | 무게: ${weight} | 경험치: ${base_experience}`;
-
-      // 타입데이터 삽입
-      $modalTypes.innerHTML = '';
-      types.forEach(typeInfo => {
-        const typeName = typeInfo.type.name;
-
-        // 타입이름으로 이미지가들어있는 객체 찾기
-        const {url: typeImageUrl}
-                = typeImages.find(imgObj => imgObj.name === typeName);
-
-        const $li = document.createElement('li');
-        $li.innerHTML = `<img src="${typeImageUrl}" alt="${typeName}">`;
-        $modalTypes.append($li);
-      });
-
-      // 강제로딩 0.5초 삽입
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // 스켈레톤을 숨기고 컨텐츠 오픈
-      $modalContent.style.display = 'flex';
-      $modalSkeleton.style.display = 'none';
-    });
-
-
-    // ====  옵저버 세팅 ==== //
-
-    // 무한스크롤 옵저버 구현
-    const observer = new IntersectionObserver((entries) => {
-      // console.log(entries);
-
-      // 감시대상에 화면에 보일 때
-      if (entries[0].isIntersecting && !isLoading) {
-        offset += limit;
-        if (offset > pokeCount) {
-          // 감시 해제
-          observer.unobserve($loading);
-          $loading.innerHTML = '<p>모든 포켓몬을 다 봤어요!</p>';
-          return;
-        }
-        // 새로운 포켓몬정보 서버요청
-        getPokemon();
-      }
-    }, {
-      threshold: 0.8,  // 감시대상이 80%정도만 보여도 콜백실행
-    });
-
-    // 감시대상 감시 명령
     observer.observe($loading);
 
-    // ==== 실행 코드 ==== //
     getPokemon();
   </script>
 </body>
