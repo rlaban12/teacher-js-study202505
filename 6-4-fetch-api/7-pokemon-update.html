@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+  <title>포켓몬 도감</title>
+  <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com" />
+  <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+  <link
+          href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap"
+          rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary-red: #ef5350;
+      --secondary-blue: #2979ff;
+      --dark-charcoal: #333;
+      --light-gray: #f7f7f7;
+      --skeleton-gray: #e0e0e0;
+      --white: #fff;
+    }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--light-gray);
+      color: var(--dark-charcoal);
+    }
+
+    h1 {
+      color: var(--primary-red);
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .pokemon-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px; /* 카드 사이 간격 */
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pokemon {
+      width: 160px;
+      padding: 15px;
+      border-radius: 12px;
+      background-color: var(--white);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pokemon:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .pokemon img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .pokemon h3 {
+      margin: 10px 0 0 0;
+      font-size: 1.1rem;
+      text-transform: capitalize; /* 첫 글자 대문자 */
+    }
+
+    /* 몬스터볼 로딩 애니메이션 */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100px;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+
+    .pokeball-loader {
+      width: 60px;
+      height: 60px;
+      background-color: var(--white);
+      border-radius: 50%;
+      position: relative;
+      border: 3px solid var(--dark-charcoal);
+      animation: spin 1s linear infinite;
+    }
+    .pokeball-loader::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--dark-charcoal);
+      transform: translateY(-50%);
+    }
+    .pokeball-loader::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      background-color: var(--white);
+      border: 3px solid var(--dark-charcoal);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .pokeball-loader > div {
+      width: 100%;
+      height: 50%;
+      background-color: var(--primary-red);
+      border-radius: 30px 30px 0 0;
+      border-bottom: 3px solid var(--dark-charcoal);
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 모달 디자인 개선 */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 999;
+    }
+
+    #modal {
+      width: 90%;
+      max-width: 450px; /* 최대 너비 설정 */
+      position: fixed;
+      overflow: hidden;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--white);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      padding: 25px;
+      display: none;
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      border: 5px solid var(--dark-charcoal);
+      border-top: 20px solid var(--primary-red);
+    }
+    /* 모달의 컨텐츠들이 배경 이미지 위에 오도록 z-index를 설정합니다 */
+    #modal > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* 배경 이미지를 위한 가상 요소 스타일 */
+    #modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      background-image: var(--modal-bg-image, none);
+
+      background-size: 120%; /* 배경 이미지 크기 */
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.1; /* 매우 은은하게 보이도록 투명도 설정 */
+
+      /* 컨텐츠 뒤에 위치하도록 z-index 설정 */
+      z-index: 1;
+    }
+    /* ✨ --- 스켈레톤 UI를 위한 스타일 (추가) --- ✨ */
+    .skeleton {
+      background-color: var(--skeleton-gray);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden; /* 반짝이는 효과를 위해 필수 */
+    }
+    .skeleton::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      height: 100%;
+      width: 150%;
+      background: linear-gradient(
+              to right,
+              transparent 0%,
+              rgba(255, 255, 255, 0.5) 50%,
+              transparent 100%
+      );
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      from {
+        left: -150%;
+      }
+      to {
+        left: 150%;
+      }
+    }
+
+    #modal-skeleton .skeleton-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+    }
+    #modal-skeleton .skeleton-title {
+      width: 60%;
+      height: 2rem;
+      margin-bottom: 15px;
+    }
+    #modal-skeleton .skeleton-text {
+      width: 80%;
+      height: 1rem;
+      margin-bottom: 20px;
+    }
+    #modal-skeleton .skeleton-section {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    #modal-skeleton .skeleton-h3 {
+      width: 40%;
+      height: 1.5rem;
+      margin-bottom: 10px;
+    }
+    #modal-skeleton .skeleton-types {
+      display: flex;
+      gap: 8px;
+    }
+    #modal-skeleton .skeleton-type {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+    }
+    /* --- 스켈레톤 UI 스타일 끝 --- */
+
+    /* 실제 컨텐츠 스타일 */
+    #modal-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #modal h2 {
+      margin: 0 0 15px 0;
+      font-size: 1.8rem;
+      text-transform: capitalize;
+    }
+    #modalImage {
+      width: 150px;
+      height: 150px;
+      background-color: var(--light-gray);
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 3px solid var(--dark-charcoal);
+    }
+    #modalDetails {
+      font-size: 1rem;
+      margin: 0 0 20px 0;
+    }
+
+    .modal-section {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    .modal-section h3 {
+      margin: 0 0 10px 0;
+      border-bottom: 2px solid var(--light-gray);
+      padding-bottom: 5px;
+    }
+    #modalTypes,
+    .damage-relation-icons {
+      list-style: none;
+      display: flex;
+      padding: 0;
+      margin: 0;
+      flex-wrap: wrap;
+    }
+    #modalTypes li,
+    .damage-relation-icons li {
+      margin-right: 8px;
+      margin-bottom: 5px;
+    }
+    #modalTypes img,
+    .damage-relation-icons img {
+      width: 24px;
+      height: 24px;
+    }
+    #closeModal {
+      margin-top: 20px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--primary-red);
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #closeModal:hover {
+      background-color: #d32f2f;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h1>포켓몬 도감</h1>
+  <div
+          class="pokemon-container"
+          id="pokemonContainer"></div>
+
+  <!-- 로딩 인디케이터: 이제 텍스트가 아닌 몬스터볼입니다! -->
+  <div
+          class="loading"
+          id="loading">
+    <div class="pokeball-loader"><div></div></div>
+  </div>
+
+  <!-- 모달 -->
+  <div id="overlay"></div>
+  <div id="modal">
+    <!-- ✨ 실제 컨텐츠가 들어갈 컨테이너 -->
+    <div
+            id="modal-content"
+            style="display: none">
+      <h2 id="modalTitle"></h2>
+      <img
+              id="modalImage"
+              src=""
+              alt="포켓몬 이미지" />
+      <p id="modalDetails"></p>
+
+      <div class="modal-section">
+        <h3>타입</h3>
+        <ul id="modalTypes"></ul>
+      </div>
+
+      <div class="modal-section damage-relations">
+        <h3>2배 데미지를 받는 타입</h3>
+        <ul
+                id="doubleDamage"
+                class="damage-relation-icons"></ul>
+      </div>
+    </div>
+
+    <!-- ✨ 스켈레톤 UI가 들어갈 컨테이너 -->
+    <div
+            id="modal-skeleton"
+            style="
+          display: none;
+          width: 100%;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+        ">
+      <div class="skeleton skeleton-image"></div>
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton-section">
+        <div class="skeleton skeleton-h3"></div>
+        <div class="skeleton-types">
+          <div class="skeleton skeleton-type"></div>
+          <div class="skeleton skeleton-type"></div>
+        </div>
+      </div>
+      <div class="skeleton-section">
+        <div class="skeleton skeleton-h3"></div>
+        <div class="skeleton-types">
+          <div class="skeleton skeleton-type"></div>
+          <div class="skeleton skeleton-type"></div>
+          <div class="skeleton skeleton-type"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="closeModal">닫기</button>
+  </div>
+
+  <script>
+    const typeImages = [
+      {
+        name: 'normal',
+        url: 'https://i.namu.wiki/i/UVQcUGgf2XkQ7aR12pmqOA76fnAnZZ27zrQMRs_9MbTXTW_GEUVJzWiKbUdK3cRyqW-AeKC4OajyMs_mUf6p7w.svg',
+      },
+      {
+        name: 'fighting',
+        url: 'https://i.namu.wiki/i/g5G5aqVMr_kVzVprzzZYDM7VU98YvPaCeu32f0uRAolxBfgEtL84GH35CiZZnaFQw8VYSVH4FWauiOnpM3d9SA.svg',
+      },
+      {
+        name: 'flying',
+        url: 'https://i.namu.wiki/i/CQLOW9IDPvfxuIIppTGYBa3y2TsEuk5FybazRwqeuaFgF9FNHRZHUkWa8tsjL7B2FFdD_9MatdgQQyH_KBKa4w.svg',
+      },
+      {
+        name: 'poison',
+        url: 'https://i.namu.wiki/i/wOoyLLDKiy-oFf4rAvtS_Zu2bgsefJmvz6lYNV8j44lT_mjYT6puaqVSgx7I4zEEZVbrT9DNLfF1xxg2mwKnhQ.svg',
+      },
+      {
+        name: 'ground',
+        url: 'https://i.namu.wiki/i/_1mjTC4i4eo1U8dXQVfn76wJ_8c6XZ8YBR712UelnIIaeDYNQx4sZ0GM9sw9zO0-QZwDhfcYPgA3bCEDVOQdhA.svg',
+      },
+      {
+        name: 'rock',
+        url: 'https://i.namu.wiki/i/8m5bA5hAR8wz07X0yHh3goxFP4Hq9fTqVnN1fGUa1SjptLefdMWZrCnxEbXpMuTGVGCyZ56bkHy2-K1qL987eA.svg',
+      },
+      {
+        name: 'bug',
+        url: 'https://i.namu.wiki/i/jHoVDx4jP_ibO6b4MYWC4uodKB7nBGRbUcMApoYKjPEt3ZP_rYzy__nAlUTRiR7v3Ug0WEo-m6XekRPGbopiSw.svg',
+      },
+      {
+        name: 'ghost',
+        url: 'https://i.namu.wiki/i/mU0K2HVDEo3NWXUwJkDAdxw852nUBuUun8DJmvaRNrycYIUa9P7i3QrLvpvP9kr2GoH4zE6GeRRvUoDKfXrb2g.svg',
+      },
+      {
+        name: 'steel',
+        url: 'https://i.namu.wiki/i/6COggx_E1MEEOQY57cb18Wbi2oGbp0jZn7BYfh72rQ8K13X5-93sCohZbpxqyuzYypMGsCWOpjzdLUrQqN3UwA.svg',
+      },
+      {
+        name: 'fire',
+        url: 'https://i.namu.wiki/i/3Rd_IL-T3OpLiZf3NFjqGmHcLi8TVyhXc4J7aiPzBUkDLgGiD3tziNdNKzSLHqdqHbYAAPfUHOw8sY2UTp3foA.svg',
+      },
+      {
+        name: 'water',
+        url: 'https://i.namu.wiki/i/aIjVcS_Rifmg45S1epta4n9kfoYodbMVvFEenybo5Xx3NNWGBUDAK5951yYryu6X8gE7zvFeDyfe8-LFFZ0nwA.svg',
+      },
+      {
+        name: 'grass',
+        url: 'https://i.namu.wiki/i/xtB3WV8R_WPXVW6ft-3XCshA0Hh18mFlU3I7H-q_m8u-SkECorP9BTx8P0U0hw-xdOytHEmXybMV0jxSyxAc0g.svg',
+      },
+      {
+        name: 'electric',
+        url: 'https://i.namu.wiki/i/aIGMuCdw1p7AG4NDGxWfHvcu_QJgHwiXhhx-5OYTL0tQGDWkNOZcS77z_lfd-Qr9aD3gKGJCNCruw-9HBJ0NXkOyrkluoZGfTjxyWpbsNwnJxPd1ma4ByWN6Ur3Y4Q0CrqsJ-xTj3eKAzYgF-pJrwA.svg',
+      },
+      {
+        name: 'psychic',
+        url: 'https://i.namu.wiki/i/0Gd4OOht1-sgSyAyTGTAztx9X0xviiokovnUkok2F_3wGTiO81Aw66KeTf9-4MVFbxn7IbhJY1Ra8UrUWJFPOQ.svg',
+      },
+      {
+        name: 'ice',
+        url: 'https://i.namu.wiki/i/mW1sfdpreP-IWq12WE8AnamlNHAU-kCLeUODy6bAB-mgpzDqYMtcjiw-OJRzjSEor-eVc7qFG54f2WGoEOjP_A.svg',
+      },
+      {
+        name: 'dragon',
+        url: 'https://i.namu.wiki/i/WmIOiZtmmBqIvahkVaOI2C5Nmn484bhPOO118dllYEpBh2Vqglzg5647g3mjrLtoG5qRlpTcMpI0spOkIpTSdw.svg',
+      },
+      {
+        name: 'dark',
+        url: 'https://i.namu.wiki/i/eDyMcr395uKyNxT5v3b1fAdwZTuxY2c1GlRKT2gW4OmrKNV6JBvP8-OrOw9_sLWNF7gP-pm-7balFwZi6crx5A.svg',
+      },
+      {
+        name: 'fairy',
+        url: 'https://i.namu.wiki/i/jI-idDQjmCCHxnvdcvWKLl5Yj428W4PguwleARun7RqjY5Me7ij_W8TB3GKYLKZSX68ccACnmG_DFXBJEbXvNw.svg',
+      },
+      {
+        name: 'stellar',
+        url: 'https://i.namu.wiki/i/hf2gRypYf0w0oCk6p9LVr0E1rWjIMVQTdAMZht3g8A6ecvR7v8hyoZY3JXP-Sx-1nHSY7biJXZsAMdxrayNOyg.webp',
+      },
+    ];
+
+    const $pokeContainer = document.getElementById('pokemonContainer');
+    const $loading = document.getElementById('loading');
+
+    const $overlay = document.getElementById('overlay');
+    const $modal = document.getElementById('modal');
+    const $modalCloseBtn = document.getElementById('closeModal');
+
+    const $modalContent = document.getElementById('modal-content');
+    const $modalSkeleton = document.getElementById('modal-skeleton');
+
+    const $modalTitle = document.getElementById('modalTitle');
+    const $modalImage = document.getElementById('modalImage');
+    const $modalDetail = document.getElementById('modalDetails');
+    const $modalTypes = document.getElementById('modalTypes');
+    const $doubleDamage = document.getElementById('doubleDamage');
+
+    const pokeUrl = 'https://pokeapi.co/api/v2/pokemon';
+    let offset = 0;
+    let limit = 40;
+    let pokeCount;
+    let isLoading = false;
+
+    // 모달 여는 함수
+    function openModal() {
+      // 뒷배경 스크롤 방지
+      document.body.style.overflow = 'hidden';
+      $modal.style.display = 'flex';
+      $overlay.style.display = 'block';
+    }
+
+    // 모달 닫는 함수
+    function closeModal() {
+      document.body.style.overflow = '';
+      $modal.style.display = 'none';
+      $overlay.style.display = 'none';
+    }
+
+
+    async function getPokemon() {
+      if (isLoading) return;
+      isLoading = true;
+      $loading.style.opacity = '1';
+
+      try {
+        // 비동기로 1초간 정지
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const res = await fetch(`${pokeUrl}?offset=${offset}&limit=${limit}`);
+        const { results, count } = await res.json();
+        pokeCount = count;
+
+        // json결과가 들어있는 프로미스 배열을 생성
+        const pokemonPromises
+                = results.map(pokemon => fetch(pokemon.url).then(res => res.json()));
+
+        // Promise.all -> 모든 프로미스를 병렬로 처리
+        const pokemonDataList = await Promise.all(pokemonPromises);
+
+        /*const pokemonDataList = [];
+        for (const pokemon of results) {
+          // 서버에 각 포켓몬 정보를 일일히 반복 요청
+          const detailRes = await fetch(pokemon.url);
+          const pokemonData = await detailRes.json();
+          // 렌더링 안하고 그 데이터를 배열에 넣고 있음
+          pokemonDataList.push(pokemonData);
+        }*/
+
+        // 렌더링
+        pokemonDataList.forEach((pokemonData) => {
+          const imgSrc = pokemonData.sprites.front_default;
+
+          const $div = document.createElement('div');
+          $div.classList.add('pokemon');
+          $div.innerHTML = `
+            <img src="${imgSrc}" alt="${pokemonData.name}" loading="lazy">
+            <h3>${pokemonData.name}</h3>
+          `;
+          $pokeContainer.append($div);
+        });
+
+      } catch (error) {
+        console.error('포켓몬 데이터를 가져오는 데 실패했습니다.', error);
+        $pokeContainer.innerHTML += '<p>데이터를 불러오는 데 실패했습니다.</p>';
+      } finally {
+        isLoading = false;
+        $loading.style.opacity = '0';
+      }
+    }
+
+
+    // ==== 이벤트 바인딩 ==== //
+    // 모달 닫기 이벤트
+    $modalCloseBtn.addEventListener('click', closeModal);
+    $overlay.addEventListener('click', closeModal);
+
+    // 모달 열기 이벤트
+    $pokeContainer.addEventListener('click', async (e) => {
+
+      const $pokeDiv = e.target.closest('.pokemon');
+
+      if (!$pokeDiv) return;
+
+      // 명시적으로 스켈레톤을 띄우고 컨텐츠를 숨기는 코드
+      $modalContent.style.display = 'none';
+      $modalSkeleton.style.display = 'flex';
+
+      // 모달 열어주기
+      openModal();
+
+      // 지금 클릭대상의 포켓몬정보를 불러와야 함!
+      // 지금 클릭대상 포켓몬이 누구?
+      console.log($pokeDiv.querySelector('img').src);
+
+      $modalImage.src = $pokeDiv.querySelector('img').src;
+
+      // 강제로딩 0.5초 삽입
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 스켈레톤을 숨기고 컨텐츠 오픈
+      $modalContent.style.display = 'flex';
+      $modalSkeleton.style.display = 'none';
+    });
+
+
+    // ====  옵저버 세팅 ==== //
+
+    // 무한스크롤 옵저버 구현
+    const observer = new IntersectionObserver((entries) => {
+      // console.log(entries);
+
+      // 감시대상에 화면에 보일 때
+      if (entries[0].isIntersecting && !isLoading) {
+        offset += limit;
+        if (offset > pokeCount) {
+          // 감시 해제
+          observer.unobserve($loading);
+          $loading.innerHTML = '<p>모든 포켓몬을 다 봤어요!</p>';
+          return;
+        }
+        // 새로운 포켓몬정보 서버요청
+        getPokemon();
+      }
+    }, {
+      threshold: 0.8,  // 감시대상이 80%정도만 보여도 콜백실행
+    });
+
+    // 감시대상 감시 명령
+    observer.observe($loading);
+
+    // ==== 실행 코드 ==== //
+    getPokemon();
+  </script>
+</body>
+</html>
